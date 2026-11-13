@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/network/websocket_client.dart';
+import '../../core/services/notification_service.dart';
 import '../../data/models/room_model.dart';
 import '../../data/repositories/chat_repository.dart';
 import 'rooms_state.dart';
@@ -77,6 +78,19 @@ class RoomsCubit extends Cubit<RoomsState> {
       // Move updated room to top of list (WhatsApp standard behavior)
       currentRooms.insert(0, updated);
       emit(s.copyWith(rooms: currentRooms));
+
+      // Show instant notification if message is from another user and not currently active room
+      if (senderId != null && senderId != _currentUserId && !isCurrentActive) {
+        final senderName =
+            (rawMsg['senderName'] ?? rawMsg['sender_name']) as String? ??
+            old.name;
+        NotificationService().showInstantMessageNotification(
+          id: roomId.hashCode,
+          title: old.isGroup ? '${old.name} ($senderName)' : senderName,
+          body: content,
+          roomId: roomId,
+        );
+      }
     } else {
       // Room was newly created or first message
       loadRooms();
@@ -242,11 +256,23 @@ class RoomsCubit extends Cubit<RoomsState> {
   }
 
   Future<RoomModel> createDirectRoom(String targetUserId) async {
+    final s = state;
+    if (s is RoomsLoaded) {
+      final existing = s.rooms.where(
+        (r) => !r.isGroup && r.members.any((m) => m.userId == targetUserId),
+      );
+      if (existing.isNotEmpty) {
+        final room = existing.first;
+        selectRoom(room.id);
+        return room;
+      }
+    }
+
     final room = await _chatRepository.getOrCreateDirectRoom(
       _currentUserId,
       targetUserId,
     );
-    await loadRooms();
+    loadRooms().ignore();
     selectRoom(room.id);
     return room;
   }

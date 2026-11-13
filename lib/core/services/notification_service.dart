@@ -8,7 +8,7 @@ import '../constants/api_endpoints.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Handled automatically by Google Play Services / Notification Center
+  await Firebase.initializeApp();
 }
 
 class NotificationService {
@@ -151,11 +151,44 @@ class NotificationService {
     }
   }
 
+  void showInstantMessageNotification({
+    required int id,
+    required String title,
+    required String body,
+    required String roomId,
+  }) {
+    if (kIsWeb) return;
+    _localNotifications.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channel.id,
+          _channel.name,
+          channelDescription: _channel.description,
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: roomId,
+    );
+  }
+
   Future<void> registerUserToken(String userId) async {
     _registeredUserId = userId;
     if (kIsWeb) return;
 
     try {
+      if (!_initialized) {
+        await initialize();
+      }
       final messaging = FirebaseMessaging.instance;
       // ignore: deprecated_member_use
       final token = await messaging.getToken();

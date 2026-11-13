@@ -39,6 +39,13 @@ class _NewChatScreenState extends State<NewChatScreen> {
   @override
   void initState() {
     super.initState();
+    if (AuthRepository.cachedUsers.isNotEmpty) {
+      _allUsers = AuthRepository.cachedUsers
+          .where((u) => u.id != widget.currentUserId)
+          .toList();
+      _filteredUsers = _allUsers;
+      _isLoading = _allUsers.isEmpty;
+    }
     _loadUsers();
     _searchController.addListener(_onSearchChanged);
     _wsSub = WebSocketClient().eventStream.listen((event) {

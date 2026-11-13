@@ -5,6 +5,7 @@ import '../../core/network/websocket_client.dart';
 import '../../core/utils/page_transitions.dart';
 import '../../core/utils/responsive_helper.dart';
 import '../../data/models/user_model.dart';
+import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../logic/auth/auth_cubit.dart';
 import '../../logic/rooms/rooms_cubit.dart';
@@ -47,6 +48,13 @@ class _HomePageScaffold extends StatefulWidget {
 class _HomePageScaffoldState extends State<_HomePageScaffold> {
   final TextEditingController _searchController = TextEditingController();
   final WebSocketClient _wsClient = WebSocketClient();
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-cache contacts so "New Chat" opens instantly without waiting
+    AuthRepository().getUsers(excludeUserId: widget.currentUser.id).ignore();
+  }
 
   @override
   void dispose() {

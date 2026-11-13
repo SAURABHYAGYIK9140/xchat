@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/date_formatter.dart';
+import '../../core/utils/page_transitions.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../logic/chat/chat_cubit.dart';
 import '../../logic/chat/chat_state.dart';
+import '../widgets/app_avatar.dart';
 import '../widgets/chat_input_bar.dart';
 import '../widgets/connection_banner.dart';
 import '../widgets/message_bubble.dart';
-import 'group_info_dialog.dart';
+import 'group_info_screen.dart';
 
 class ChatView extends StatelessWidget {
   final String roomId;
@@ -143,25 +145,24 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                   ),
                 Padding(
                   padding: const EdgeInsets.only(left: 6),
-                  child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Colors.white24,
-                    backgroundImage: room.avatarUrl != null ? NetworkImage(room.avatarUrl!) : null,
-                    child: room.avatarUrl == null
-                        ? Icon(room.isGroup ? Icons.groups_rounded : Icons.person_rounded, size: 20, color: Colors.white)
-                        : null,
+                  child: AppAvatar(
+                    imageUrl: room.avatarUrl,
+                    name: room.name,
+                    isGroup: room.isGroup,
+                    radius: 19,
                   ),
                 ),
               ],
             ),
             title: InkWell(
               onTap: room.isGroup
-                  ? () => showDialog<void>(
-                        context: context,
-                        builder: (_) => GroupInfoDialog(
-                          room: room,
-                          currentUserId: widget.currentUserId,
-                          chatCubit: cubit,
+                  ? () => Navigator.of(context).push(
+                        SlidePageRoute<void>(
+                          page: GroupInfoScreen(
+                            room: room,
+                            currentUserId: widget.currentUserId,
+                            chatCubit: cubit,
+                          ),
                         ),
                       )
                   : null,
@@ -193,12 +194,13 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                 IconButton(
                   icon: const Icon(Icons.info_outline_rounded),
                   tooltip: 'Group Info',
-                  onPressed: () => showDialog<void>(
-                    context: context,
-                    builder: (_) => GroupInfoDialog(
-                      room: room,
-                      currentUserId: widget.currentUserId,
-                      chatCubit: cubit,
+                  onPressed: () => Navigator.of(context).push(
+                    SlidePageRoute<void>(
+                      page: GroupInfoScreen(
+                        room: room,
+                        currentUserId: widget.currentUserId,
+                        chatCubit: cubit,
+                      ),
                     ),
                   ),
                 ),

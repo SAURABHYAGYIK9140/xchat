@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/date_formatter.dart';
 import '../../data/models/room_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../logic/chat/chat_cubit.dart';
+import '../widgets/app_avatar.dart';
 
-class GroupInfoDialog extends StatefulWidget {
+class GroupInfoScreen extends StatefulWidget {
   final RoomModel room;
   final String currentUserId;
   final ChatCubit chatCubit;
 
-  const GroupInfoDialog({
+  const GroupInfoScreen({
     super.key,
     required this.room,
     required this.currentUserId,
@@ -17,10 +19,10 @@ class GroupInfoDialog extends StatefulWidget {
   });
 
   @override
-  State<GroupInfoDialog> createState() => _GroupInfoDialogState();
+  State<GroupInfoScreen> createState() => _GroupInfoScreenState();
 }
 
-class _GroupInfoDialogState extends State<GroupInfoDialog> {
+class _GroupInfoScreenState extends State<GroupInfoScreen> {
   final AuthRepository _authRepository = AuthRepository();
   bool _isAdmin = false;
 
@@ -74,7 +76,13 @@ class _GroupInfoDialogState extends State<GroupInfoDialog> {
                     itemBuilder: (context, idx) {
                       final user = candidateUsers[idx];
                       return ListTile(
-                        leading: CircleAvatar(backgroundImage: NetworkImage(user.avatarUrl)),
+                        leading: AppAvatar(
+                          imageUrl: user.avatarUrl,
+                          name: user.displayName,
+                          radius: 20,
+                          isOnline: user.isOnline,
+                          showOnlineIndicator: true,
+                        ),
                         title: Text(user.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
                         subtitle: Text('@${user.username}'),
                         trailing: ElevatedButton(
@@ -103,12 +111,14 @@ class _GroupInfoDialogState extends State<GroupInfoDialog> {
 
   void _handleRemoveMember(RoomMemberModel member) async {
     final parentNav = Navigator.of(context);
+    final isMe = member.userId == widget.currentUserId;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(member.userId == widget.currentUserId ? 'Leave Group?' : 'Remove Member?'),
+        title: Text(isMe ? 'Leave Group?' : 'Remove Member?'),
         content: Text(
-          member.userId == widget.currentUserId
+          isMe
               ? 'Are you sure you want to leave "${widget.room.name}"?'
               : 'Remove ${member.user?.displayName ?? "this member"} from the group?',
         ),
@@ -117,7 +127,7 @@ class _GroupInfoDialogState extends State<GroupInfoDialog> {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: Text(member.userId == widget.currentUserId ? 'Leave' : 'Remove'),
+            child: Text(isMe ? 'Leave' : 'Remove'),
           ),
         ],
       ),
@@ -131,107 +141,115 @@ class _GroupInfoDialogState extends State<GroupInfoDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 620),
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Group Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF0F2F5),
+      appBar: AppBar(
+        title: const Text('Group Info', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+      ),
+      body: ListView(
+        children: [
+          // Group Hero Profile Container
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            color: Colors.white,
+            child: Column(
+              children: [
+                Hero(
+                  tag: 'group_avatar_${widget.room.id}',
+                  child: AppAvatar(
+                    imageUrl: widget.room.avatarUrl,
+                    name: widget.room.name,
+                    isGroup: true,
+                    radius: 46,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  widget.room.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Group • ${widget.room.members.length} participants',
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Created ${DateFormatter.formatDateDivider(widget.room.createdAt)}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
+              ],
             ),
-            const Divider(),
+          ),
+          const SizedBox(height: 10),
 
-            // Group Banner
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
+          // Group Description
+          if (widget.room.description != null && widget.room.description!.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundColor: AppColors.primary.withAlpha(38),
-                    backgroundImage: widget.room.avatarUrl != null ? NetworkImage(widget.room.avatarUrl!) : null,
-                    child: widget.room.avatarUrl == null
-                        ? const Icon(Icons.groups_rounded, size: 36, color: AppColors.primary)
-                        : null,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.room.name,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                        ),
-                        if (widget.room.description != null && widget.room.description!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              widget.room.description!,
-                              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                            ),
-                          ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${widget.room.members.length} participants',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-
-            // Members Header & Add Action
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
+                  const Text('Description', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
+                  const SizedBox(height: 6),
                   Text(
-                    '${widget.room.members.length} PARTICIPANTS',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5),
+                    widget.room.description!,
+                    style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, height: 1.4),
                   ),
-                  if (_isAdmin)
-                    TextButton.icon(
-                      onPressed: _showAddMemberModal,
-                      icon: const Icon(Icons.person_add_rounded, size: 16, color: AppColors.primary),
-                      label: const Text('Add Member', style: TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w600)),
-                    ),
                 ],
               ),
             ),
+            const SizedBox(height: 10),
+          ],
 
-            // Members List
-            Expanded(
-              child: ListView.separated(
-                itemCount: widget.room.members.length,
-                separatorBuilder: (_, __) => const Divider(height: 0.5, indent: 70),
-                itemBuilder: (context, index) {
-                  final member = widget.room.members[index];
+          // Participants Section
+          Container(
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                  child: Text(
+                    '${widget.room.members.length} PARTICIPANTS',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5),
+                  ),
+                ),
+
+                // Add Member Tile (if admin)
+                if (_isAdmin) ...[
+                  ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.person_add_rounded, color: Colors.white, size: 20),
+                    ),
+                    title: const Text('Add Participant', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                    onTap: _showAddMemberModal,
+                  ),
+                  const Divider(height: 0.5, indent: 70),
+                ],
+
+                // Members List
+                ...widget.room.members.map((member) {
                   final isCurrent = member.userId == widget.currentUserId;
                   final isMemberAdmin = member.role == 'admin';
                   final displayName = member.user?.displayName ?? (isCurrent ? 'You' : 'Member');
-                  final avatar = member.user?.avatarUrl ?? 'https://api.dicebear.com/7.x/avataaars/svg?seed=${member.userId}';
+                  final username = member.user?.username ?? '';
 
                   return ListTile(
-                    leading: CircleAvatar(
+                    leading: AppAvatar(
+                      imageUrl: member.user?.avatarUrl,
+                      name: displayName,
                       radius: 20,
-                      backgroundImage: NetworkImage(avatar),
+                      isOnline: member.user?.isOnline ?? false,
+                      showOnlineIndicator: true,
                     ),
                     title: Row(
                       children: [
@@ -244,7 +262,7 @@ class _GroupInfoDialogState extends State<GroupInfoDialog> {
                       ],
                     ),
                     subtitle: Text(
-                      isMemberAdmin ? 'Group Admin' : 'Member',
+                      isMemberAdmin ? 'Group Admin' : (username.isNotEmpty ? '@$username' : 'Participant'),
                       style: TextStyle(
                         fontSize: 12,
                         color: isMemberAdmin ? AppColors.primary : AppColors.textMuted,
@@ -263,11 +281,28 @@ class _GroupInfoDialogState extends State<GroupInfoDialog> {
                           )
                         : null,
                   );
-                },
-              ),
+                }),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 10),
+
+          // Leave Group Footer Tile
+          Container(
+            color: Colors.white,
+            child: ListTile(
+              leading: const Icon(Icons.logout_rounded, color: AppColors.error),
+              title: const Text('Exit Group', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600)),
+              onTap: () {
+                final myMember = widget.room.members.where((m) => m.userId == widget.currentUserId).firstOrNull;
+                if (myMember != null) {
+                  _handleRemoveMember(myMember);
+                }
+              },
+            ),
+          ),
+          const SizedBox(height: 32),
+        ],
       ),
     );
   }

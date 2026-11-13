@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/network/websocket_client.dart';
+import '../../core/utils/page_transitions.dart';
 import '../../core/utils/responsive_helper.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/chat_repository.dart';
 import '../../logic/auth/auth_cubit.dart';
 import '../../logic/rooms/rooms_cubit.dart';
 import '../../logic/rooms/rooms_state.dart';
+import '../widgets/app_avatar.dart';
 import '../widgets/connection_banner.dart';
 import '../widgets/conversation_tile.dart';
 import '../widgets/empty_chat_placeholder.dart';
 import 'chat_detail_page.dart';
 import 'chat_view.dart';
-import 'create_group_dialog.dart';
-import 'new_chat_dialog.dart';
+import 'create_group_screen.dart';
+import 'new_chat_screen.dart';
 
 class HomePage extends StatelessWidget {
   final UserModel currentUser;
@@ -56,24 +58,25 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
     final roomsCubit = context.read<RoomsCubit>();
     final isWide = ResponsiveHelper.isWideScreen(context);
 
-    showDialog<void>(
-      context: context,
-      builder: (_) => NewChatDialog(
-        currentUserId: widget.currentUser.id,
-        roomsCubit: roomsCubit,
-        onRoomSelected: (room) {
-          if (!isWide) {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => ChatDetailPage(
-                  roomId: room.id,
-                  currentUserId: widget.currentUser.id,
-                  currentUserName: widget.currentUser.displayName,
+    Navigator.of(context).push(
+      SlidePageRoute<void>(
+        page: NewChatScreen(
+          currentUserId: widget.currentUser.id,
+          roomsCubit: roomsCubit,
+          onRoomSelected: (room) {
+            if (!isWide) {
+              Navigator.of(context).push(
+                SlidePageRoute<void>(
+                  page: ChatDetailPage(
+                    roomId: room.id,
+                    currentUserId: widget.currentUser.id,
+                    currentUserName: widget.currentUser.displayName,
+                  ),
                 ),
-              ),
-            );
-          }
-        },
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -82,24 +85,25 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
     final roomsCubit = context.read<RoomsCubit>();
     final isWide = ResponsiveHelper.isWideScreen(context);
 
-    showDialog<void>(
-      context: context,
-      builder: (_) => CreateGroupDialog(
-        currentUserId: widget.currentUser.id,
-        roomsCubit: roomsCubit,
-        onGroupCreated: (room) {
-          if (!isWide) {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => ChatDetailPage(
-                  roomId: room.id,
-                  currentUserId: widget.currentUser.id,
-                  currentUserName: widget.currentUser.displayName,
+    Navigator.of(context).push(
+      SlidePageRoute<void>(
+        page: CreateGroupScreen(
+          currentUserId: widget.currentUser.id,
+          roomsCubit: roomsCubit,
+          onGroupCreated: (room) {
+            if (!isWide) {
+              Navigator.of(context).push(
+                SlidePageRoute<void>(
+                  page: ChatDetailPage(
+                    roomId: room.id,
+                    currentUserId: widget.currentUser.id,
+                    currentUserName: widget.currentUser.displayName,
+                  ),
                 ),
-              ),
-            );
-          }
-        },
+              );
+            }
+          },
+        ),
       ),
     );
   }
@@ -138,9 +142,10 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                     color: AppColors.secondarySurface,
                     child: Row(
                       children: [
-                        CircleAvatar(
+                        AppAvatar(
+                          imageUrl: widget.currentUser.avatarUrl,
+                          name: widget.currentUser.displayName,
                           radius: 19,
-                          backgroundImage: NetworkImage(widget.currentUser.avatarUrl),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

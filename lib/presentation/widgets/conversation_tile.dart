@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../data/models/room_model.dart';
+import 'app_avatar.dart';
 import 'status_tick.dart';
 import '../../data/models/message_model.dart';
 
@@ -33,34 +34,12 @@ class ConversationTile extends StatelessWidget {
           child: Row(
             children: [
               // Avatar
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundColor: room.isGroup ? const Color(0xFF00A884).withAlpha(38) : AppColors.secondarySurface,
-                    backgroundImage: room.avatarUrl != null ? NetworkImage(room.avatarUrl!) : null,
-                    child: room.avatarUrl == null
-                        ? Icon(
-                            room.isGroup ? Icons.groups_rounded : Icons.person_rounded,
-                            color: room.isGroup ? AppColors.primary : AppColors.textSecondary,
-                            size: 26,
-                          )
-                        : null,
-                  ),
-                  if (room.isGroup)
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.group, size: 10, color: Colors.white),
-                      ),
-                    ),
-                ],
+              AppAvatar(
+                imageUrl: room.avatarUrl,
+                name: room.name,
+                isGroup: room.isGroup,
+                radius: 25,
+                showOnlineIndicator: room.isGroup,
               ),
               const SizedBox(width: 14),
 

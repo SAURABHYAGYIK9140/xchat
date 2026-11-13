@@ -11,7 +11,9 @@ import 'presentation/pages/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService().initialize();
+  await NotificationService().initialize(
+    onChatTapped: NotificationService.handleNotificationTap,
+  );
   runApp(const XChatApp());
 }
 
@@ -24,6 +26,7 @@ class XChatApp extends StatelessWidget {
       create: (context) =>
           AuthCubit(authRepository: AuthRepository())..checkSession(),
       child: MaterialApp(
+        navigatorKey: NotificationService.navigatorKey,
         title: 'XChat - Cross-Platform Messenger',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,

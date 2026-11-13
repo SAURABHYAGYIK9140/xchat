@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/network/websocket_client.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/utils/page_transitions.dart';
 import '../../core/utils/responsive_helper.dart';
 import '../../data/models/user_model.dart';
@@ -54,10 +55,52 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
     super.initState();
     // Pre-cache contacts so "New Chat" opens instantly without waiting
     AuthRepository().getUsers(excludeUserId: widget.currentUser.id).ignore();
+
+    // Register notification tap redirection handler
+    NotificationService.onChatOpenedFromNotification = _openChatRoom;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService.processPendingNavigation();
+    });
+  }
+
+  void _openChatRoom(String roomId) {
+    if (NotificationService.activeRoomId == roomId) return;
+
+    final nav =
+        NotificationService.navigatorKey.currentState ?? Navigator.of(context);
+    final currentCtx =
+        NotificationService.navigatorKey.currentContext ?? context;
+    final isWide = ResponsiveHelper.isWideScreen(currentCtx);
+
+    if (isWide) {
+      currentCtx.read<RoomsCubit>().selectRoom(roomId);
+    } else {
+      // If currently viewing another ChatDetailPage, pop it to prevent stacked pages
+      if (NotificationService.activeRoomId != null && nav.canPop()) {
+        nav.pop();
+      }
+      context.read<RoomsCubit>().selectRoom(roomId);
+      nav.push(
+        MaterialPageRoute<void>(
+          builder: (_) => ChatDetailPage(
+            roomId: roomId,
+            currentUserId: widget.currentUser.id,
+            currentUserName: widget.currentUser.displayName,
+          ),
+        ),
+      ).then((_) {
+        if (mounted) {
+          context.read<RoomsCubit>().selectRoom(null);
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    if (NotificationService.onChatOpenedFromNotification == _openChatRoom) {
+      NotificationService.onChatOpenedFromNotification = null;
+    }
     _searchController.dispose();
     super.dispose();
   }
@@ -81,7 +124,11 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                     currentUserName: widget.currentUser.displayName,
                   ),
                 ),
-              );
+              ).then((_) {
+                if (mounted) {
+                  context.read<RoomsCubit>().selectRoom(null);
+                }
+              });
             }
           },
         ),
@@ -108,7 +155,11 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                     currentUserName: widget.currentUser.displayName,
                   ),
                 ),
-              );
+              ).then((_) {
+                if (mounted) {
+                  context.read<RoomsCubit>().selectRoom(null);
+                }
+              });
             }
           },
         ),
@@ -466,10 +517,11 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                 currentUserId: widget.currentUser.id,
                 isSelected: isSelected,
                 onTap: () {
+                  final roomsCubit = context.read<RoomsCubit>();
                   if (isWide) {
-                    context.read<RoomsCubit>().selectRoom(room.id);
+                    roomsCubit.selectRoom(room.id);
                   } else {
-                    context.read<RoomsCubit>().selectRoom(room.id);
+                    roomsCubit.selectRoom(room.id);
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (_) => ChatDetailPage(
@@ -478,7 +530,11 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                           currentUserName: widget.currentUser.displayName,
                         ),
                       ),
-                    );
+                    ).then((_) {
+                      if (mounted) {
+                        roomsCubit.selectRoom(null);
+                      }
+                    });
                   }
                 },
               );

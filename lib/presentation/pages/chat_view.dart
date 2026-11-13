@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../core/utils/page_transitions.dart';
 import '../../data/repositories/chat_repository.dart';
@@ -36,16 +37,25 @@ class ChatView extends StatelessWidget {
         currentUserId: currentUserId,
         currentUserName: currentUserName,
       ),
-      child: _ChatViewScaffold(currentUserId: currentUserId, onBack: onBack),
+      child: _ChatViewScaffold(
+        roomId: roomId,
+        currentUserId: currentUserId,
+        onBack: onBack,
+      ),
     );
   }
 }
 
 class _ChatViewScaffold extends StatefulWidget {
+  final String roomId;
   final String currentUserId;
   final VoidCallback? onBack;
 
-  const _ChatViewScaffold({required this.currentUserId, this.onBack});
+  const _ChatViewScaffold({
+    required this.roomId,
+    required this.currentUserId,
+    this.onBack,
+  });
 
   @override
   State<_ChatViewScaffold> createState() => _ChatViewScaffoldState();
@@ -53,6 +63,20 @@ class _ChatViewScaffold extends StatefulWidget {
 
 class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    NotificationService.activeRoomId = widget.roomId;
+  }
+
+  @override
+  void didUpdateWidget(covariant _ChatViewScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.roomId != widget.roomId) {
+      NotificationService.activeRoomId = widget.roomId;
+    }
+  }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -68,6 +92,9 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
 
   @override
   void dispose() {
+    if (NotificationService.activeRoomId == widget.roomId) {
+      NotificationService.activeRoomId = null;
+    }
     _scrollController.dispose();
     super.dispose();
   }

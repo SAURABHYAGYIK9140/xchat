@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import '../constants/api_endpoints.dart';
@@ -16,11 +18,28 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
+  /// Global navigator key for notification tap routing
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
+  /// ID of the room currently opened and viewed by the user.
+  /// When this matches an incoming message's roomId, notifications are suppressed.
+  static String? activeRoomId;
+
+  /// Holds a pending room ID if a notification was tapped before the UI was ready.
+  static String? pendingNavigationRoomId;
+
+  /// Callback to execute when a notification is tapped.
+  static void Function(String roomId)? onChatOpenedFromNotification;
+
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
   String? _registeredUserId;
-  void Function(String roomId)? onChatOpenedFromNotification;
+
+  /// De-duplication cache: tracks (roomId_body) to prevent duplicate
+  /// notifications from WebSocket and FCM arriving at the same time.
+  final Set<String> _recentNotificationKeys = {};
 
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
     'xchat_messages',
@@ -31,9 +50,60 @@ class NotificationService {
     enableVibration: true,
   );
 
+  static void handleNotificationTap(String roomId) {
+    if (activeRoomId == roomId) {
+      debugPrint('ℹ️ [Notification] Already in room $roomId, ignoring tap');
+      return;
+    }
+
+    if (onChatOpenedFromNotification != null) {
+      onChatOpenedFromNotification!(roomId);
+    } else {
+      debugPrint('⏳ [Notification] Queueing pending navigation to room: $roomId');
+      pendingNavigationRoomId = roomId;
+    }
+  }
+
+  static void processPendingNavigation() {
+    final pending = pendingNavigationRoomId;
+    if (pending != null && onChatOpenedFromNotification != null) {
+      pendingNavigationRoomId = null;
+      debugPrint('🚀 [Notification] Processing pending navigation to room: $pending');
+      onChatOpenedFromNotification!(pending);
+    }
+  }
+
+  bool _shouldSuppressNotification(String roomId, String body) {
+    // 1. Suppress if the user is currently viewing this exact chat room
+    if (activeRoomId != null && activeRoomId == roomId) {
+      debugPrint(
+        '🔇 [Notification] Suppressed: user is currently viewing room: $roomId',
+      );
+      return true;
+    }
+
+    // 2. Suppress duplicate notifications arriving within 4 seconds (e.g. WS + FCM)
+    final key = '${roomId}_$body';
+    if (_recentNotificationKeys.contains(key)) {
+      debugPrint(
+        '🔇 [Notification] Suppressed duplicate notification for: $key',
+      );
+      return true;
+    }
+
+    _recentNotificationKeys.add(key);
+    Timer(const Duration(seconds: 4), () {
+      _recentNotificationKeys.remove(key);
+    });
+
+    return false;
+  }
+
   Future<void> initialize({void Function(String roomId)? onChatTapped}) async {
     if (_initialized) return;
-    onChatOpenedFromNotification = onChatTapped;
+    if (onChatTapped != null) {
+      onChatOpenedFromNotification = onChatTapped;
+    }
 
     if (kIsWeb) {
       _initialized = true;
@@ -72,8 +142,8 @@ class NotificationService {
         settings: initializationSettings,
         onDidReceiveNotificationResponse: (response) {
           final payload = response.payload;
-          if (payload != null && onChatOpenedFromNotification != null) {
-            onChatOpenedFromNotification!(payload);
+          if (payload != null && payload.isNotEmpty) {
+            handleNotificationTap(payload);
           }
         },
       );
@@ -100,19 +170,27 @@ class NotificationService {
       // Handle notification tapped when app opened from background
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
         final roomId = message.data['roomId'] as String?;
-        if (roomId != null && onChatOpenedFromNotification != null) {
-          onChatOpenedFromNotification!(roomId);
+        if (roomId != null && roomId.isNotEmpty) {
+          handleNotificationTap(roomId);
         }
       });
 
-      // Check if app was launched from a terminated state via a notification
+      // Check if app was launched from a terminated state via FCM notification
       final initialMessage = await messaging.getInitialMessage();
       if (initialMessage != null) {
         final roomId = initialMessage.data['roomId'] as String?;
-        if (roomId != null && onChatOpenedFromNotification != null) {
-          Future.delayed(const Duration(milliseconds: 500), () {
-            onChatOpenedFromNotification!(roomId);
-          });
+        if (roomId != null && roomId.isNotEmpty) {
+          handleNotificationTap(roomId);
+        }
+      }
+
+      // Check if launched from local notification tap when terminated
+      final launchDetails =
+          await _localNotifications.getNotificationAppLaunchDetails();
+      if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
+        final payload = launchDetails.notificationResponse?.payload;
+        if (payload != null && payload.isNotEmpty) {
+          handleNotificationTap(payload);
         }
       }
 
@@ -123,16 +201,22 @@ class NotificationService {
   }
 
   void _showForegroundNotification(RemoteMessage message) {
+    final roomId = message.data['roomId'] as String? ?? '';
+    final body =
+        message.notification?.body ?? message.data['body']?.toString() ?? '';
+
+    // Check suppression (active room or duplicate)
+    if (_shouldSuppressNotification(roomId, body)) {
+      return;
+    }
+
     final title =
         message.notification?.title ??
         message.data['title']?.toString() ??
         'New Message';
-    final body =
-        message.notification?.body ?? message.data['body']?.toString() ?? '';
-    final roomId = message.data['roomId'] as String?;
 
     _localNotifications.show(
-      id: message.messageId.hashCode,
+      id: roomId.isNotEmpty ? roomId.hashCode : message.messageId.hashCode,
       title: title,
       body: body,
       notificationDetails: NotificationDetails(
@@ -161,8 +245,14 @@ class NotificationService {
     required String roomId,
   }) {
     if (kIsWeb) return;
+
+    // Check suppression (active room or duplicate)
+    if (_shouldSuppressNotification(roomId, body)) {
+      return;
+    }
+
     _localNotifications.show(
-      id: id,
+      id: roomId.hashCode,
       title: title,
       body: body,
       notificationDetails: NotificationDetails(

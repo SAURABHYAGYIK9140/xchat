@@ -123,32 +123,35 @@ class NotificationService {
   }
 
   void _showForegroundNotification(RemoteMessage message) {
-    final notification = message.notification;
+    final title =
+        message.notification?.title ??
+        message.data['title']?.toString() ??
+        'New Message';
+    final body =
+        message.notification?.body ?? message.data['body']?.toString() ?? '';
     final roomId = message.data['roomId'] as String?;
 
-    if (notification != null) {
-      _localNotifications.show(
-        id: notification.hashCode,
-        title: notification.title ?? 'New Message',
-        body: notification.body,
-        notificationDetails: NotificationDetails(
-          android: AndroidNotificationDetails(
-            _channel.id,
-            _channel.name,
-            channelDescription: _channel.description,
-            importance: Importance.max,
-            priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: const DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
+    _localNotifications.show(
+      id: message.messageId.hashCode,
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channel.id,
+          _channel.name,
+          channelDescription: _channel.description,
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
         ),
-        payload: roomId,
-      );
-    }
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: roomId,
+    );
   }
 
   void showInstantMessageNotification({
@@ -228,29 +231,36 @@ class NotificationService {
   }
 
   Future<void> _sendTokenToServer(String userId, String token) async {
-    try {
-      final url = Uri.parse(
-        '${ApiEndpoints.baseUrl}/api/xchat/users/push-token',
-      );
-      final platform = defaultTargetPlatform.name;
+    final candidateHosts = [
+      ApiEndpoints.baseUrl,
+      ApiEndpoints.useLiveBackend
+          ? ApiEndpoints.localBase
+          : ApiEndpoints.remoteHttpBase,
+    ];
 
-      final res = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'userId': userId,
-          'fcmToken': token,
-          'platform': platform,
-        }),
-      );
+    final platform = defaultTargetPlatform.name;
 
-      if (res.statusCode == 200) {
-        debugPrint(
-          '✅ [Push] Device token registered with backend for user: $userId',
-        );
+    for (final host in candidateHosts) {
+      try {
+        final url = Uri.parse('$host/api/xchat/users/push-token');
+        final res = await http
+            .post(
+              url,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'userId': userId,
+                'fcmToken': token,
+                'platform': platform,
+              }),
+            )
+            .timeout(const Duration(seconds: 4));
+
+        if (res.statusCode == 200) {
+          debugPrint('✅ [Push] Device token registered with backend ($host)');
+        }
+      } catch (e) {
+        debugPrint('⚠️ [Push] Failed to upload push token to $host: $e');
       }
-    } catch (e) {
-      debugPrint('⚠️ [Push] Failed to upload push token: $e');
     }
   }
 }

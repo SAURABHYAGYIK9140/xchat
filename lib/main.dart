@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/constants/app_colors.dart';
+import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'data/repositories/auth_repository.dart';
 import 'logic/auth/auth_cubit.dart';
@@ -8,8 +9,9 @@ import 'logic/auth/auth_state.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/pages/login_page.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().initialize();
   runApp(const XChatApp());
 }
 

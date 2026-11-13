@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/network/websocket_client.dart';
+import '../../core/services/notification_service.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import 'auth_state.dart';
@@ -31,11 +32,13 @@ class AuthCubit extends Cubit<AuthState> {
             avatarUrl: savedUser.avatarUrl,
           );
           _wsClient.connect(userId: verifiedUser.id);
+          NotificationService().registerUserToken(verifiedUser.id);
           emit(Authenticated(verifiedUser));
           return;
         } catch (_) {
           // If offline or network error, fallback to cached session
           _wsClient.connect(userId: savedUser.id);
+          NotificationService().registerUserToken(savedUser.id);
           emit(Authenticated(savedUser));
         }
       } else {
@@ -59,6 +62,7 @@ class AuthCubit extends Cubit<AuthState> {
         avatarUrl: avatarUrl,
       );
       _wsClient.connect(userId: user.id);
+      NotificationService().registerUserToken(user.id);
       emit(Authenticated(user));
     } catch (e) {
       emit(AuthError(e.toString().replaceAll('Exception: ', '')));
@@ -66,6 +70,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> logout() async {
+    await NotificationService().unregisterUserToken();
     await _authRepository.clearSession();
     _wsClient.disconnect();
     emit(Unauthenticated());

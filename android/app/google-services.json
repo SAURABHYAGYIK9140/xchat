@@ -1,0 +1,199 @@
+{
+  "project_info": {
+    "project_number": "734761280246",
+    "firebase_url": "https://todo-app-c4464-default-rtdb.firebaseio.com",
+    "project_id": "todo-app-c4464",
+    "storage_bucket": "todo-app-c4464.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734761280246:android:2aa161d3ec6d30a19942d7",
+        "android_client_info": {
+          "package_name": "com.example.flutter_callkit_demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-83ooBD_dD_UC0tHVLTUQccUpBcwxsyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "734761280246-1o28cl9j5a8glehli4n6n0j335e3lk0l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saurabh.wallpaperApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734761280246:android:c4eaa878c49520629942d7",
+        "android_client_info": {
+          "package_name": "com.example.todo_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734761280246-c7tk753sd7qql9pcieq3ib9k5sl8ueah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.todo_app",
+            "certificate_hash": "78bcc263dcad9c0982bbdf3bc27cb1035876d7ef"
+          }
+        },
+        {
+          "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-83ooBD_dD_UC0tHVLTUQccUpBcwxsyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "734761280246-1o28cl9j5a8glehli4n6n0j335e3lk0l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saurabh.wallpaperApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734761280246:android:9087631828c5aa319942d7",
+        "android_client_info": {
+          "package_name": "com.example.xchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-83ooBD_dD_UC0tHVLTUQccUpBcwxsyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "734761280246-1o28cl9j5a8glehli4n6n0j335e3lk0l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saurabh.wallpaperApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734761280246:android:a032f7dc9dca31fa9942d7",
+        "android_client_info": {
+          "package_name": "com.saurabh.detox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-83ooBD_dD_UC0tHVLTUQccUpBcwxsyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "734761280246-1o28cl9j5a8glehli4n6n0j335e3lk0l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saurabh.wallpaperApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734761280246:android:b3cb144f4552177d9942d7",
+        "android_client_info": {
+          "package_name": "com.saurabh.wallify"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-83ooBD_dD_UC0tHVLTUQccUpBcwxsyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734761280246-a1qq47nq2gbk2mqu4cvqf0tqu8urr97q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "734761280246-1o28cl9j5a8glehli4n6n0j335e3lk0l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.saurabh.wallpaperApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

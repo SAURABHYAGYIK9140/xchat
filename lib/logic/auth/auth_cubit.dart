@@ -23,9 +23,21 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final savedUser = await _authRepository.getSavedSession();
       if (savedUser != null) {
-        // Connect WebSocket with saved user
-        _wsClient.connect(userId: savedUser.id);
-        emit(Authenticated(savedUser));
+        // Sync / verify session with the active server
+        try {
+          final verifiedUser = await _authRepository.loginOrRegister(
+            username: savedUser.username,
+            displayName: savedUser.displayName,
+            avatarUrl: savedUser.avatarUrl,
+          );
+          _wsClient.connect(userId: verifiedUser.id);
+          emit(Authenticated(verifiedUser));
+          return;
+        } catch (_) {
+          // If offline or network error, fallback to cached session
+          _wsClient.connect(userId: savedUser.id);
+          emit(Authenticated(savedUser));
+        }
       } else {
         emit(Unauthenticated());
       }

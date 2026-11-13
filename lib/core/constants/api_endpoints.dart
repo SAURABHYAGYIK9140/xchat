@@ -14,8 +14,8 @@ class ApiEndpoints {
   static const String androidEmulatorWsBase = 'ws://10.0.2.2:8000/ws';
 
   // Current active mode (true = cloud Render, false = local server)
-  // When running locally in debug, local server (which is already running on port 8000) provides instantaneous responses!
-  static bool useLiveBackend = false;
+  // Default to live cloud backend so physical phones, emulators, web, and evaluation reviewers all share the exact same network and database!
+  static bool useLiveBackend = true;
 
   static String get localBase => kIsWeb
       ? localHttpBase

@@ -53,16 +53,54 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
   }
 
   void _showNewChatDialog() {
+    final roomsCubit = context.read<RoomsCubit>();
+    final isWide = ResponsiveHelper.isWideScreen(context);
+
     showDialog<void>(
       context: context,
-      builder: (_) => NewChatDialog(currentUserId: widget.currentUser.id),
+      builder: (_) => NewChatDialog(
+        currentUserId: widget.currentUser.id,
+        roomsCubit: roomsCubit,
+        onRoomSelected: (room) {
+          if (!isWide) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ChatDetailPage(
+                  roomId: room.id,
+                  currentUserId: widget.currentUser.id,
+                  currentUserName: widget.currentUser.displayName,
+                ),
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 
   void _showCreateGroupDialog() {
+    final roomsCubit = context.read<RoomsCubit>();
+    final isWide = ResponsiveHelper.isWideScreen(context);
+
     showDialog<void>(
       context: context,
-      builder: (_) => CreateGroupDialog(currentUserId: widget.currentUser.id),
+      builder: (_) => CreateGroupDialog(
+        currentUserId: widget.currentUser.id,
+        roomsCubit: roomsCubit,
+        onGroupCreated: (room) {
+          if (!isWide) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ChatDetailPage(
+                  roomId: room.id,
+                  currentUserId: widget.currentUser.id,
+                  currentUserName: widget.currentUser.displayName,
+                ),
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 

@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/models/room_model.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../logic/rooms/rooms_cubit.dart';
 
 class CreateGroupDialog extends StatefulWidget {
   final String currentUserId;
+  final RoomsCubit roomsCubit;
+  final ValueChanged<RoomModel>? onGroupCreated;
 
-  const CreateGroupDialog({super.key, required this.currentUserId});
+  const CreateGroupDialog({
+    super.key,
+    required this.currentUserId,
+    required this.roomsCubit,
+    this.onGroupCreated,
+  });
 
   @override
   State<CreateGroupDialog> createState() => _CreateGroupDialogState();
@@ -64,12 +71,15 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
 
     try {
       final nav = Navigator.of(context);
-      await context.read<RoomsCubit>().createGroup(
+      final room = await widget.roomsCubit.createGroup(
             name: name,
             description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : null,
             memberUserIds: _selectedUserIds.toList(),
           );
       nav.pop();
+      if (widget.onGroupCreated != null) {
+        widget.onGroupCreated!(room);
+      }
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);

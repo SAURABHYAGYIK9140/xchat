@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/models/room_model.dart';
 import '../../data/models/user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../logic/rooms/rooms_cubit.dart';
@@ -8,8 +8,15 @@ import 'create_group_dialog.dart';
 
 class NewChatDialog extends StatefulWidget {
   final String currentUserId;
+  final RoomsCubit roomsCubit;
+  final ValueChanged<RoomModel>? onRoomSelected;
 
-  const NewChatDialog({super.key, required this.currentUserId});
+  const NewChatDialog({
+    super.key,
+    required this.currentUserId,
+    required this.roomsCubit,
+    this.onRoomSelected,
+  });
 
   @override
   State<NewChatDialog> createState() => _NewChatDialogState();
@@ -85,7 +92,11 @@ class _NewChatDialogState extends State<NewChatDialog> {
                 Navigator.of(context).pop();
                 showDialog<void>(
                   context: context,
-                  builder: (_) => CreateGroupDialog(currentUserId: widget.currentUserId),
+                  builder: (_) => CreateGroupDialog(
+                    currentUserId: widget.currentUserId,
+                    roomsCubit: widget.roomsCubit,
+                    onGroupCreated: widget.onRoomSelected,
+                  ),
                 );
               },
             ),
@@ -157,8 +168,11 @@ class _NewChatDialogState extends State<NewChatDialog> {
                                   ),
                                   onTap: () async {
                                     final nav = Navigator.of(context);
-                                    await context.read<RoomsCubit>().createDirectRoom(user.id);
+                                    final room = await widget.roomsCubit.createDirectRoom(user.id);
                                     nav.pop();
+                                    if (widget.onRoomSelected != null) {
+                                      widget.onRoomSelected!(room);
+                                    }
                                   },
                                 );
                               },

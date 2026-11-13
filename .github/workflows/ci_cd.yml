@@ -135,15 +135,20 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-v2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle-v2-
 
       - name: Install Dependencies
         run: flutter pub get
 
       - name: Build Android Release APK
-        run: flutter build apk --release --android-skip-build-dependency-validation
+        run: |
+          flutter build apk --release --android-skip-build-dependency-validation || {
+            echo "::error::Flutter build APK failed! Diagnosing with Gradle stacktrace:"
+            cd android && ./gradlew assembleRelease --stacktrace || true
+            exit 1
+          }
 
       - name: Upload Android APK Artifact
         uses: actions/upload-artifact@v4

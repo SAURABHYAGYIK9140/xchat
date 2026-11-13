@@ -37,3 +37,4 @@ class StatusTick extends StatelessWidget {
     }
   }
 }
+

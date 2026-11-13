@@ -5,16 +5,28 @@ class ApiEndpoints {
   static const String remoteHttpBase = 'https://backend-7bx7.onrender.com';
   static const String remoteWsBase = 'wss://backend-7bx7.onrender.com/ws';
 
-  // Local fallback (configurable for local testing)
+  // Local backend
   static const String localHttpBase = 'http://localhost:8000';
   static const String localWsBase = 'ws://localhost:8000/ws';
 
-  // Toggle between local and live cloud backend
-  // By default, use live cloud backend so reviewers can test Web & APK immediately without local setup
-  static bool useLiveBackend = true;
+  // Android emulator local alias
+  static const String androidEmulatorHttpBase = 'http://10.0.2.2:8000';
+  static const String androidEmulatorWsBase = 'ws://10.0.2.2:8000/ws';
 
-  static String get baseUrl => useLiveBackend ? remoteHttpBase : (kIsWeb ? localHttpBase : 'http://10.0.2.2:8000');
-  static String get wsUrl => useLiveBackend ? remoteWsBase : (kIsWeb ? localWsBase : 'ws://10.0.2.2:8000/ws');
+  // Current active mode (true = cloud Render, false = local server)
+  // When running locally in debug, local server (which is already running on port 8000) provides instantaneous responses!
+  static bool useLiveBackend = false;
+
+  static String get localBase => kIsWeb
+      ? localHttpBase
+      : (defaultTargetPlatform == TargetPlatform.android ? androidEmulatorHttpBase : localHttpBase);
+
+  static String get localWs => kIsWeb
+      ? localWsBase
+      : (defaultTargetPlatform == TargetPlatform.android ? androidEmulatorWsBase : localWsBase);
+
+  static String get baseUrl => useLiveBackend ? remoteHttpBase : localBase;
+  static String get wsUrl => useLiveBackend ? remoteWsBase : localWs;
 
   static String get login => '$baseUrl/api/xchat/auth/login';
   static String get users => '$baseUrl/api/xchat/users';

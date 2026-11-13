@@ -138,3 +138,4 @@ class MessageModel extends Equatable {
   @override
   List<Object?> get props => [id, roomId, senderId, content, status, isDeleted, createdAt, clientTempId];
 }
+

@@ -151,3 +151,4 @@ class RoomModel extends Equatable {
         members,
       ];
 }
+

@@ -46,3 +46,4 @@ class DateFormatter {
     return DateFormat('MMMM d, yyyy').format(local);
   }
 }
+

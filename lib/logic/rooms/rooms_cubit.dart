@@ -170,3 +170,4 @@ class RoomsCubit extends Cubit<RoomsState> {
     return super.close();
   }
 }
+

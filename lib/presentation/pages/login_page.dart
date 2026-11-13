@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/constants/api_endpoints.dart';
 import '../../core/constants/app_colors.dart';
 import '../../logic/auth/auth_cubit.dart';
 import '../../logic/auth/auth_state.dart';
@@ -55,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
+            constraints: const BoxConstraints(maxWidth: 440),
             child: Card(
               color: Colors.white,
               elevation: 1,
@@ -75,11 +76,53 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;
+                    final errorMessage = state is AuthError ? state.message : null;
 
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Server Environment Selector Pill
+                        Center(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () {
+                              setState(() {
+                                ApiEndpoints.useLiveBackend = !ApiEndpoints.useLiveBackend;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondarySurface,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppColors.divider, width: 0.5),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.accentGreen,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    ApiEndpoints.useLiveBackend ? 'Server: Cloud (Render)' : 'Server: Local (Port 8000)',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.sync_alt_rounded, size: 12, color: AppColors.textMuted),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
                         // App Brand Header
                         Center(
                           child: Container(
@@ -95,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
 
                         const Text(
                           'Welcome to XChat',
@@ -116,7 +159,32 @@ class _LoginPageState extends State<LoginPage> {
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
+
+                        // Error Banner if failed
+                        if (errorMessage != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEE2E2),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFFFCA5A5), width: 0.5),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.error_outline_rounded, size: 18, color: AppColors.error),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    errorMessage,
+                                    style: const TextStyle(fontSize: 12, color: Color(0xFF991B1B)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
 
                         // Form Inputs
                         const Text(
@@ -128,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
                           controller: _usernameController,
                           enabled: !isLoading,
                           decoration: const InputDecoration(
-                            hintText: 'e.g. john_doe',
+                            hintText: 'e.g. alex',
                             prefixIcon: Icon(Icons.alternate_email_rounded, size: 18, color: AppColors.textSecondary),
                           ),
                         ),
@@ -143,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                           controller: _displayNameController,
                           enabled: !isLoading,
                           decoration: const InputDecoration(
-                            hintText: 'e.g. John Doe',
+                            hintText: 'e.g. Alex Johnson',
                             prefixIcon: Icon(Icons.badge_outlined, size: 18, color: AppColors.textSecondary),
                           ),
                         ),
@@ -170,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                                 ),
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
 
                         // Quick Test Accounts (Reviewer Friendly)
                         const Row(
@@ -191,7 +259,7 @@ class _LoginPageState extends State<LoginPage> {
                             Expanded(child: Divider()),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 14),
 
                         Wrap(
                           spacing: 8,

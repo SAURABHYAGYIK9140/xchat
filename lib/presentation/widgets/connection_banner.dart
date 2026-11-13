@@ -47,3 +47,4 @@ class ConnectionBanner extends StatelessWidget {
     );
   }
 }
+

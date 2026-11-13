@@ -235,3 +235,4 @@ class _CreateGroupDialogState extends State<CreateGroupDialog> {
     );
   }
 }
+

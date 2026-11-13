@@ -61,3 +61,4 @@ class RoomsError extends RoomsState {
   @override
   List<Object?> get props => [message];
 }
+

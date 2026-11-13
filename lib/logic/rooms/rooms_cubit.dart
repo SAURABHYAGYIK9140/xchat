@@ -15,9 +15,9 @@ class RoomsCubit extends Cubit<RoomsState> {
   RoomsCubit({
     required ChatRepository chatRepository,
     required String currentUserId,
-  })  : _chatRepository = chatRepository,
-        _currentUserId = currentUserId,
-        super(RoomsInitial()) {
+  }) : _chatRepository = chatRepository,
+       _currentUserId = currentUserId,
+       super(RoomsInitial()) {
     _listenToWebSocket();
   }
 
@@ -33,7 +33,8 @@ class RoomsCubit extends Cubit<RoomsState> {
         _handlePresenceUpdate(event);
       } else if (type == 'xchat_auth_success') {
         _handleAuthSuccess(event);
-      } else if (type == 'xchat_room_created' || type == 'xchat_group_updated') {
+      } else if (type == 'xchat_room_created' ||
+          type == 'xchat_group_updated') {
         loadRooms();
       }
     });
@@ -61,7 +62,9 @@ class RoomsCubit extends Cubit<RoomsState> {
     if (roomIndex != -1) {
       final old = currentRooms.removeAt(roomIndex);
       final isCurrentActive = s.activeRoomId == roomId;
-      final newUnread = (senderId != _currentUserId && !isCurrentActive) ? old.unreadCount + 1 : old.unreadCount;
+      final newUnread = (senderId != _currentUserId && !isCurrentActive)
+          ? old.unreadCount + 1
+          : old.unreadCount;
 
       final updated = old.copyWith(
         lastMessage: content,
@@ -106,7 +109,9 @@ class RoomsCubit extends Cubit<RoomsState> {
     final userId = event['userId'] as String?;
     final isOnline = event['isOnline'] == true;
     final lastSeenStr = event['lastSeen'] as String?;
-    final lastSeen = lastSeenStr != null ? DateTime.tryParse(lastSeenStr) : null;
+    final lastSeen = lastSeenStr != null
+        ? DateTime.tryParse(lastSeenStr)
+        : null;
 
     if (userId == null) return;
 
@@ -191,7 +196,9 @@ class RoomsCubit extends Cubit<RoomsState> {
   }
 
   Future<void> loadRooms() async {
-    final currentActiveId = (state is RoomsLoaded) ? (state as RoomsLoaded).activeRoomId : null;
+    final currentActiveId = (state is RoomsLoaded)
+        ? (state as RoomsLoaded).activeRoomId
+        : null;
     emit(RoomsLoading());
     try {
       final rooms = await _chatRepository.getUserRooms(_currentUserId);
@@ -235,7 +242,10 @@ class RoomsCubit extends Cubit<RoomsState> {
   }
 
   Future<RoomModel> createDirectRoom(String targetUserId) async {
-    final room = await _chatRepository.getOrCreateDirectRoom(_currentUserId, targetUserId);
+    final room = await _chatRepository.getOrCreateDirectRoom(
+      _currentUserId,
+      targetUserId,
+    );
     await loadRooms();
     selectRoom(room.id);
     return room;
@@ -265,4 +275,3 @@ class RoomsCubit extends Cubit<RoomsState> {
     return super.close();
   }
 }
-

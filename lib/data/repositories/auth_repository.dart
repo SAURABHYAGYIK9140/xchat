@@ -14,7 +14,9 @@ class AuthRepository {
   }) async {
     final candidateHosts = [
       ApiEndpoints.baseUrl,
-      ApiEndpoints.useLiveBackend ? ApiEndpoints.localBase : ApiEndpoints.remoteHttpBase,
+      ApiEndpoints.useLiveBackend
+          ? ApiEndpoints.localBase
+          : ApiEndpoints.remoteHttpBase,
     ];
 
     String lastError = '';
@@ -43,7 +45,8 @@ class AuthRepository {
           ApiEndpoints.useLiveBackend = (host == ApiEndpoints.remoteHttpBase);
           return user;
         } else {
-          lastError = 'Server returned ${response.statusCode}: ${response.body}';
+          lastError =
+              'Server returned ${response.statusCode}: ${response.body}';
         }
       } catch (e) {
         lastError = e.toString();
@@ -56,7 +59,9 @@ class AuthRepository {
   Future<List<UserModel>> getUsers({String? excludeUserId}) async {
     final candidateHosts = [
       ApiEndpoints.baseUrl,
-      ApiEndpoints.useLiveBackend ? ApiEndpoints.localBase : ApiEndpoints.remoteHttpBase,
+      ApiEndpoints.useLiveBackend
+          ? ApiEndpoints.localBase
+          : ApiEndpoints.remoteHttpBase,
     ];
 
     for (final host in candidateHosts) {
@@ -65,11 +70,15 @@ class AuthRepository {
             ? '$host/api/xchat/users?excludeUserId=$excludeUserId'
             : '$host/api/xchat/users';
 
-        final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 4));
+        final response = await http
+            .get(Uri.parse(url))
+            .timeout(const Duration(seconds: 4));
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body) as Map<String, dynamic>;
           final rawList = data['users'] as List<dynamic>;
-          return rawList.map((u) => UserModel.fromJson(u as Map<String, dynamic>)).toList();
+          return rawList
+              .map((u) => UserModel.fromJson(u as Map<String, dynamic>))
+              .toList();
         }
       } catch (_) {}
     }

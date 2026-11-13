@@ -4,12 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../constants/api_endpoints.dart';
 
-enum WsConnectionStatus {
-  connecting,
-  connected,
-  disconnected,
-  reconnecting,
-}
+enum WsConnectionStatus { connecting, connected, disconnected, reconnecting }
 
 class WebSocketClient {
   static final WebSocketClient _instance = WebSocketClient._internal();
@@ -37,7 +32,9 @@ class WebSocketClient {
 
   List<String> get _candidateWsUrls {
     final primary = ApiEndpoints.wsUrl;
-    final fallback = ApiEndpoints.useLiveBackend ? ApiEndpoints.localWs : ApiEndpoints.remoteWsBase;
+    final fallback = ApiEndpoints.useLiveBackend
+        ? ApiEndpoints.localWs
+        : ApiEndpoints.remoteWsBase;
     return [primary, fallback];
   }
 
@@ -59,11 +56,17 @@ class WebSocketClient {
   void _connectInternal() {
     if (_intentionalClose) return;
 
-    _updateStatus(_reconnectAttempts > 0 ? WsConnectionStatus.reconnecting : WsConnectionStatus.connecting);
+    _updateStatus(
+      _reconnectAttempts > 0
+          ? WsConnectionStatus.reconnecting
+          : WsConnectionStatus.connecting,
+    );
 
     final candidates = _candidateWsUrls;
     final selectedUrl = candidates[_activeCandidateIndex % candidates.length];
-    debugPrint('🔌 [WS] Connecting to $selectedUrl (attempt $_reconnectAttempts)...');
+    debugPrint(
+      '🔌 [WS] Connecting to $selectedUrl (attempt $_reconnectAttempts)...',
+    );
 
     try {
       final uri = Uri.parse(selectedUrl);
@@ -105,10 +108,7 @@ class WebSocketClient {
 
         // Authenticate user presence immediately upon socket handshake
         if (_currentUserId != null) {
-          send({
-            'type': 'xchat_auth',
-            'userId': _currentUserId,
-          });
+          send({'type': 'xchat_auth', 'userId': _currentUserId});
         }
       } else if (type == 'xchat_auth_success') {
         debugPrint('👤 [WS] Authenticated as $_currentUserId');
@@ -125,7 +125,10 @@ class WebSocketClient {
     _pingTimer?.cancel();
     _pingTimer = Timer.periodic(const Duration(seconds: 25), (_) {
       if (_currentStatus == WsConnectionStatus.connected) {
-        send({'type': 'ping', 'timestamp': DateTime.now().millisecondsSinceEpoch});
+        send({
+          'type': 'ping',
+          'timestamp': DateTime.now().millisecondsSinceEpoch,
+        });
       }
     });
   }
@@ -143,7 +146,9 @@ class WebSocketClient {
     }
 
     final delaySeconds = (_reconnectAttempts * 2).clamp(2, 10);
-    debugPrint('⏳ [WS] Reconnecting in ${delaySeconds}s (attempt $_reconnectAttempts)...');
+    debugPrint(
+      '⏳ [WS] Reconnecting in ${delaySeconds}s (attempt $_reconnectAttempts)...',
+    );
     _reconnectTimer = Timer(Duration(seconds: delaySeconds), () {
       _connectInternal();
     });

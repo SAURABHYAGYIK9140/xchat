@@ -11,4 +11,3 @@ class ResponsiveHelper {
     return MediaQuery.of(context).size.width < mobileBreakpoint;
   }
 }
-

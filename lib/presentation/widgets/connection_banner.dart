@@ -13,8 +13,12 @@ class ConnectionBanner extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final isConnecting = status == WsConnectionStatus.connecting || status == WsConnectionStatus.reconnecting;
-    final message = isConnecting ? 'Connecting to XChat...' : 'Waiting for network connection...';
+    final isConnecting =
+        status == WsConnectionStatus.connecting ||
+        status == WsConnectionStatus.reconnecting;
+    final message = isConnecting
+        ? 'Connecting to XChat...'
+        : 'Waiting for network connection...';
 
     return Container(
       width: double.infinity,
@@ -39,7 +43,9 @@ class ConnectionBanner extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isConnecting ? const Color(0xFF92400E) : const Color(0xFF991B1B),
+              color: isConnecting
+                  ? const Color(0xFF92400E)
+                  : const Color(0xFF991B1B),
             ),
           ),
         ],
@@ -47,4 +53,3 @@ class ConnectionBanner extends StatelessWidget {
     );
   }
 }
-

@@ -10,8 +10,8 @@ class AuthCubit extends Cubit<AuthState> {
   final WebSocketClient _wsClient = WebSocketClient();
 
   AuthCubit({required AuthRepository authRepository})
-      : _authRepository = authRepository,
-        super(AuthInitial());
+    : _authRepository = authRepository,
+      super(AuthInitial());
 
   UserModel? get currentUser {
     final s = state;
@@ -76,4 +76,3 @@ class AuthCubit extends Cubit<AuthState> {
     emit(Unauthenticated());
   }
 }
-

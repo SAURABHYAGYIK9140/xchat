@@ -60,7 +60,9 @@ class ConversationTile extends StatelessWidget {
                             room.name,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w600,
+                              fontWeight: hasUnread
+                                  ? FontWeight.w700
+                                  : FontWeight.w600,
                               color: AppColors.textPrimary,
                             ),
                             maxLines: 1,
@@ -69,11 +71,17 @@ class ConversationTile extends StatelessWidget {
                         ),
                         if (room.lastMessageTime != null)
                           Text(
-                            DateFormatter.formatConversationTime(room.lastMessageTime!),
+                            DateFormatter.formatConversationTime(
+                              room.lastMessageTime!,
+                            ),
                             style: TextStyle(
                               fontSize: 12,
-                              color: hasUnread ? AppColors.accentGreen : AppColors.textMuted,
-                              fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
+                              color: hasUnread
+                                  ? AppColors.accentGreen
+                                  : AppColors.textMuted,
+                              fontWeight: hasUnread
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
                             ),
                           ),
                       ],
@@ -89,11 +97,18 @@ class ConversationTile extends StatelessWidget {
                         ],
                         Expanded(
                           child: Text(
-                            room.lastMessage ?? (room.isGroup ? 'Group created' : 'Tap to start chat'),
+                            room.lastMessage ??
+                                (room.isGroup
+                                    ? 'Group created'
+                                    : 'Tap to start chat'),
                             style: TextStyle(
                               fontSize: 13.5,
-                              color: hasUnread ? AppColors.textPrimary : AppColors.textSecondary,
-                              fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
+                              color: hasUnread
+                                  ? AppColors.textPrimary
+                                  : AppColors.textSecondary,
+                              fontWeight: hasUnread
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -101,12 +116,18 @@ class ConversationTile extends StatelessWidget {
                         ),
                         if (hasUnread)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: const BoxDecoration(
                               color: AppColors.unreadBadge,
                               shape: BoxShape.circle,
                             ),
-                            constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                            constraints: const BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
                             child: Center(
                               child: Text(
                                 room.unreadCount.toString(),

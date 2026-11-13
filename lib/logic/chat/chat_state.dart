@@ -43,18 +43,20 @@ class ChatLoaded extends ChatState {
       messages: messages ?? this.messages,
       typingUserNames: typingUserNames ?? this.typingUserNames,
       connectionStatus: connectionStatus ?? this.connectionStatus,
-      replyToMessage: clearReplyTo ? null : (replyToMessage ?? this.replyToMessage),
+      replyToMessage: clearReplyTo
+          ? null
+          : (replyToMessage ?? this.replyToMessage),
     );
   }
 
   @override
   List<Object?> get props => [
-        room,
-        messages,
-        typingUserNames,
-        connectionStatus,
-        replyToMessage,
-      ];
+    room,
+    messages,
+    typingUserNames,
+    connectionStatus,
+    replyToMessage,
+  ];
 }
 
 class ChatError extends ChatState {
@@ -64,4 +66,3 @@ class ChatError extends ChatState {
   @override
   List<Object?> get props => [message];
 }
-

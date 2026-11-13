@@ -49,14 +49,15 @@ class EmptyChatPlaceholder extends StatelessWidget {
             const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.lock_outline_rounded, size: 14, color: AppColors.textMuted),
+                Icon(
+                  Icons.lock_outline_rounded,
+                  size: 14,
+                  color: AppColors.textMuted,
+                ),
                 SizedBox(width: 6),
                 Text(
                   'Persistent, high-performance messaging with real-time WebSockets',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textMuted,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
             ),

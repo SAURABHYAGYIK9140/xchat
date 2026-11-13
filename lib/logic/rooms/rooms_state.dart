@@ -45,7 +45,9 @@ class RoomsLoaded extends RoomsState {
   }) {
     return RoomsLoaded(
       rooms: rooms ?? this.rooms,
-      activeRoomId: clearActiveRoom ? null : (activeRoomId ?? this.activeRoomId),
+      activeRoomId: clearActiveRoom
+          ? null
+          : (activeRoomId ?? this.activeRoomId),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -61,4 +63,3 @@ class RoomsError extends RoomsState {
   @override
   List<Object?> get props => [message];
 }
-

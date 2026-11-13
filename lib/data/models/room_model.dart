@@ -28,18 +28,31 @@ class RoomMemberModel extends Equatable {
       role: (json['role'] as String?) ?? 'member',
       lastReadAt: json['lastReadAt'] != null
           ? DateTime.tryParse(json['lastReadAt'] as String)
-          : (json['last_read_at'] != null ? DateTime.tryParse(json['last_read_at'] as String) : null),
+          : (json['last_read_at'] != null
+                ? DateTime.tryParse(json['last_read_at'] as String)
+                : null),
       joinedAt: json['joinedAt'] != null
           ? DateTime.tryParse(json['joinedAt'] as String) ?? DateTime.now()
           : (json['joined_at'] != null
-              ? DateTime.tryParse(json['joined_at'] as String) ?? DateTime.now()
-              : DateTime.now()),
-      user: json['user'] != null ? UserModel.fromJson(json['user'] as Map<String, dynamic>) : null,
+                ? DateTime.tryParse(json['joined_at'] as String) ??
+                      DateTime.now()
+                : DateTime.now()),
+      user: json['user'] != null
+          ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
     );
   }
 
   @override
-  List<Object?> get props => [id, roomId, userId, role, lastReadAt, joinedAt, user];
+  List<Object?> get props => [
+    id,
+    roomId,
+    userId,
+    role,
+    lastReadAt,
+    joinedAt,
+    user,
+  ];
 }
 
 class RoomModel extends Equatable {
@@ -76,7 +89,9 @@ class RoomModel extends Equatable {
   factory RoomModel.fromJson(Map<String, dynamic> json) {
     final rawMembers = json['members'] as List<dynamic>?;
     final members = rawMembers != null
-        ? rawMembers.map((m) => RoomMemberModel.fromJson(m as Map<String, dynamic>)).toList()
+        ? rawMembers
+              .map((m) => RoomMemberModel.fromJson(m as Map<String, dynamic>))
+              .toList()
         : <RoomMemberModel>[];
 
     return RoomModel(
@@ -89,13 +104,15 @@ class RoomModel extends Equatable {
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : (json['created_at'] != null
-              ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
-              : DateTime.now()),
+                ? DateTime.tryParse(json['created_at'] as String) ??
+                      DateTime.now()
+                : DateTime.now()),
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now()
           : (json['updated_at'] != null
-              ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
-              : DateTime.now()),
+                ? DateTime.tryParse(json['updated_at'] as String) ??
+                      DateTime.now()
+                : DateTime.now()),
       lastMessage: json['lastMessage'] as String?,
       lastMessageTime: json['lastMessageTime'] != null
           ? DateTime.tryParse(json['lastMessageTime'] as String)
@@ -156,15 +173,14 @@ class RoomModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        isGroup,
-        avatarUrl,
-        updatedAt,
-        lastMessage,
-        lastMessageTime,
-        unreadCount,
-        members,
-      ];
+    id,
+    name,
+    isGroup,
+    avatarUrl,
+    updatedAt,
+    lastMessage,
+    lastMessageTime,
+    unreadCount,
+    members,
+  ];
 }
-

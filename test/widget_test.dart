@@ -8,7 +8,9 @@ import 'package:xchat/main.dart';
 
 void main() {
   group('XChat Core Widget & Application Tests', () {
-    testWidgets('XChatApp launches and renders cleanly', (WidgetTester tester) async {
+    testWidgets('XChatApp launches and renders cleanly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(const XChatApp());
       await tester.pump();
 

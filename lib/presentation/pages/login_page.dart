@@ -17,28 +17,54 @@ class _LoginPageState extends State<LoginPage> {
   final _displayNameController = TextEditingController();
 
   final List<Map<String, String>> _quickAccounts = [
-    {'username': 'alex', 'name': 'Alex Johnson', 'avatar': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'},
-    {'username': 'sarah', 'name': 'Sarah Connor', 'avatar': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'},
-    {'username': 'michael', 'name': 'Michael Scott', 'avatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'},
-    {'username': 'emma', 'name': 'Emma Watson', 'avatar': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150'},
+    {
+      'username': 'alex',
+      'name': 'Alex Johnson',
+      'avatar':
+          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    },
+    {
+      'username': 'sarah',
+      'name': 'Sarah Connor',
+      'avatar':
+          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+    },
+    {
+      'username': 'michael',
+      'name': 'Michael Scott',
+      'avatar':
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+    },
+    {
+      'username': 'emma',
+      'name': 'Emma Watson',
+      'avatar':
+          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150',
+    },
   ];
 
   void _handleLogin({String? username, String? name, String? avatar}) {
-    final finalUsername = (username ?? _usernameController.text).trim().toLowerCase();
-    final finalName = name ?? (_displayNameController.text.trim().isNotEmpty ? _displayNameController.text.trim() : null);
+    final finalUsername = (username ?? _usernameController.text)
+        .trim()
+        .toLowerCase();
+    final finalName =
+        name ??
+        (_displayNameController.text.trim().isNotEmpty
+            ? _displayNameController.text.trim()
+            : null);
 
     if (finalUsername.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a username')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a username')));
       return;
     }
 
     context.read<AuthCubit>().login(
-          username: finalUsername,
-          displayName: finalName,
-          avatarUrl: avatar,
-        );
+      username: finalUsername,
+      displayName: finalName,
+      avatarUrl: avatar,
+    );
   }
 
   @override
@@ -70,13 +96,18 @@ class _LoginPageState extends State<LoginPage> {
                   listener: (context, state) {
                     if (state is AuthError) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message), backgroundColor: AppColors.error),
+                        SnackBar(
+                          content: Text(state.message),
+                          backgroundColor: AppColors.error,
+                        ),
                       );
                     }
                   },
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;
-                    final errorMessage = state is AuthError ? state.message : null;
+                    final errorMessage = state is AuthError
+                        ? state.message
+                        : null;
 
                     return Column(
                       mainAxisSize: MainAxisSize.min,
@@ -88,15 +119,22 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(16),
                             onTap: () {
                               setState(() {
-                                ApiEndpoints.useLiveBackend = !ApiEndpoints.useLiveBackend;
+                                ApiEndpoints.useLiveBackend =
+                                    !ApiEndpoints.useLiveBackend;
                               });
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.secondarySurface,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppColors.divider, width: 0.5),
+                                border: Border.all(
+                                  color: AppColors.divider,
+                                  width: 0.5,
+                                ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -111,11 +149,21 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    ApiEndpoints.useLiveBackend ? 'Server: Cloud (Render)' : 'Server: Local (Port 8000)',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                                    ApiEndpoints.useLiveBackend
+                                        ? 'Server: Cloud (Render)'
+                                        : 'Server: Local (Port 8000)',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
                                   const SizedBox(width: 4),
-                                  const Icon(Icons.sync_alt_rounded, size: 12, color: AppColors.textMuted),
+                                  const Icon(
+                                    Icons.sync_alt_rounded,
+                                    size: 12,
+                                    color: AppColors.textMuted,
+                                  ),
                                 ],
                               ),
                             ),
@@ -169,16 +217,26 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: BoxDecoration(
                               color: const Color(0xFFFEE2E2),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFFCA5A5), width: 0.5),
+                              border: Border.all(
+                                color: const Color(0xFFFCA5A5),
+                                width: 0.5,
+                              ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.error_outline_rounded, size: 18, color: AppColors.error),
+                                const Icon(
+                                  Icons.error_outline_rounded,
+                                  size: 18,
+                                  color: AppColors.error,
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     errorMessage,
-                                    style: const TextStyle(fontSize: 12, color: Color(0xFF991B1B)),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF991B1B),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -189,7 +247,11 @@ class _LoginPageState extends State<LoginPage> {
                         // Form Inputs
                         const Text(
                           'Username',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         TextField(
@@ -197,14 +259,22 @@ class _LoginPageState extends State<LoginPage> {
                           enabled: !isLoading,
                           decoration: const InputDecoration(
                             hintText: 'e.g. alex',
-                            prefixIcon: Icon(Icons.alternate_email_rounded, size: 18, color: AppColors.textSecondary),
+                            prefixIcon: Icon(
+                              Icons.alternate_email_rounded,
+                              size: 18,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
 
                         const Text(
                           'Display Name (Optional)',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         TextField(
@@ -212,7 +282,11 @@ class _LoginPageState extends State<LoginPage> {
                           enabled: !isLoading,
                           decoration: const InputDecoration(
                             hintText: 'e.g. Alex Johnson',
-                            prefixIcon: Icon(Icons.badge_outlined, size: 18, color: AppColors.textSecondary),
+                            prefixIcon: Icon(
+                              Icons.badge_outlined,
+                              size: 18,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -225,17 +299,25 @@ class _LoginPageState extends State<LoginPage> {
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                           child: isLoading
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
                                 )
                               : const Text(
                                   'Continue to XChat',
-                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                         ),
                         const SizedBox(height: 24),
@@ -272,19 +354,25 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               label: Text(
                                 acc['name']!,
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                               onPressed: isLoading
                                   ? null
                                   : () => _handleLogin(
-                                        username: acc['username'],
-                                        name: acc['name'],
-                                        avatar: acc['avatar'],
-                                      ),
+                                      username: acc['username'],
+                                      name: acc['name'],
+                                      avatar: acc['avatar'],
+                                    ),
                               backgroundColor: AppColors.secondarySurface,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
-                                side: const BorderSide(color: AppColors.divider, width: 0.5),
+                                side: const BorderSide(
+                                  color: AppColors.divider,
+                                  width: 0.5,
+                                ),
                               ),
                             );
                           }).toList(),

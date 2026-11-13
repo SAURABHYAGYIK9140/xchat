@@ -66,7 +66,8 @@ class _NewChatScreenState extends State<NewChatScreen> {
         _filteredUsers = _allUsers;
       } else {
         _filteredUsers = _allUsers.where((u) {
-          return u.displayName.toLowerCase().contains(query) || u.username.toLowerCase().contains(query);
+          return u.displayName.toLowerCase().contains(query) ||
+              u.username.toLowerCase().contains(query);
         }).toList();
       }
     });
@@ -74,7 +75,9 @@ class _NewChatScreenState extends State<NewChatScreen> {
 
   Future<void> _loadUsers() async {
     try {
-      final users = await _authRepository.getUsers(excludeUserId: widget.currentUserId);
+      final users = await _authRepository.getUsers(
+        excludeUserId: widget.currentUserId,
+      );
       if (mounted) {
         setState(() {
           _allUsers = users;
@@ -138,7 +141,10 @@ class _NewChatScreenState extends State<NewChatScreen> {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Select Contact', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  const Text(
+                    'Select Contact',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
                   Text(
                     _isLoading ? 'Loading...' : '${_allUsers.length} contacts',
                     style: const TextStyle(fontSize: 12, color: Colors.white70),
@@ -164,102 +170,131 @@ class _NewChatScreenState extends State<NewChatScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.error),
-                      const SizedBox(height: 8),
-                      Text(_error!, style: const TextStyle(color: AppColors.error)),
-                      const SizedBox(height: 12),
-                      ElevatedButton(onPressed: _loadUsers, child: const Text('Retry')),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    size: 40,
+                    color: AppColors.error,
                   ),
-                )
-              : ListView(
-                  children: [
-                    if (!_isSearching) ...[
-                      // New Group Action Tile
-                      ListTile(
-                        leading: Container(
-                          width: 44,
-                          height: 44,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.group_add_rounded, color: Colors.white, size: 22),
-                        ),
-                        title: const Text(
-                          'New Group',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                        ),
-                        subtitle: const Text(
-                          'Create a group conversation',
-                          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                        ),
-                        onTap: _openCreateGroupScreen,
+                  const SizedBox(height: 8),
+                  Text(_error!, style: const TextStyle(color: AppColors.error)),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _loadUsers,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : ListView(
+              children: [
+                if (!_isSearching) ...[
+                  // New Group Action Tile
+                  ListTile(
+                    leading: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
                       ),
-                      const Divider(height: 0.5, indent: 72),
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: Text(
-                          'CONTACTS ON XCHAT',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textMuted,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                      child: const Icon(
+                        Icons.group_add_rounded,
+                        color: Colors.white,
+                        size: 22,
                       ),
-                    ],
+                    ),
+                    title: const Text(
+                      'New Group',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'Create a group conversation',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    onTap: _openCreateGroupScreen,
+                  ),
+                  const Divider(height: 0.5, indent: 72),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(
+                      'CONTACTS ON XCHAT',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMuted,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
 
-                    if (_filteredUsers.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Center(
-                          child: Text(
-                            _isSearching ? 'No contacts found matching "${_searchController.text}"' : 'No registered contacts found',
-                            style: const TextStyle(color: AppColors.textSecondary),
-                          ),
+                if (_filteredUsers.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Center(
+                      child: Text(
+                        _isSearching
+                            ? 'No contacts found matching "${_searchController.text}"'
+                            : 'No registered contacts found',
+                        style: const TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ),
+                  )
+                else
+                  ..._filteredUsers.map((user) {
+                    return ListTile(
+                      leading: AppAvatar(
+                        imageUrl: user.avatarUrl,
+                        name: user.displayName,
+                        radius: 22,
+                        isOnline: user.isOnline,
+                        showOnlineIndicator: true,
+                      ),
+                      title: Text(
+                        user.displayName,
+                        style: const TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
                         ),
-                      )
-                    else
-                      ..._filteredUsers.map((user) {
-                        return ListTile(
-                          leading: AppAvatar(
-                            imageUrl: user.avatarUrl,
-                            name: user.displayName,
-                            radius: 22,
-                            isOnline: user.isOnline,
-                            showOnlineIndicator: true,
-                          ),
-                          title: Text(
-                            user.displayName,
-                            style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                          ),
-                          subtitle: Text(
-                            user.isOnline ? 'Online' : '@${user.username}',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: user.isOnline ? AppColors.accentGreen : AppColors.textMuted,
-                              fontWeight: user.isOnline ? FontWeight.w600 : FontWeight.normal,
-                            ),
-                          ),
-                          onTap: () async {
-                            final nav = Navigator.of(context);
-                            final room = await widget.roomsCubit.createDirectRoom(user.id);
-                            nav.pop();
-                            if (widget.onRoomSelected != null) {
-                              widget.onRoomSelected!(room);
-                            }
-                          },
+                      ),
+                      subtitle: Text(
+                        user.isOnline ? 'Online' : '@${user.username}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: user.isOnline
+                              ? AppColors.accentGreen
+                              : AppColors.textMuted,
+                          fontWeight: user.isOnline
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () async {
+                        final nav = Navigator.of(context);
+                        final room = await widget.roomsCubit.createDirectRoom(
+                          user.id,
                         );
-                      }),
-                  ],
-                ),
+                        nav.pop();
+                        if (widget.onRoomSelected != null) {
+                          widget.onRoomSelected!(room);
+                        }
+                      },
+                    );
+                  }),
+              ],
+            ),
     );
   }
 }
-

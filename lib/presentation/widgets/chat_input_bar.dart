@@ -74,10 +74,17 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.sentiment_satisfied_alt_outlined, color: AppColors.textSecondary, size: 22),
+                      icon: const Icon(
+                        Icons.sentiment_satisfied_alt_outlined,
+                        color: AppColors.textSecondary,
+                        size: 22,
+                      ),
                       onPressed: () {},
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
                     ),
                     Expanded(
                       child: TextField(
@@ -88,20 +95,33 @@ class _ChatInputBarState extends State<ChatInputBar> {
                         onSubmitted: (_) => _handleSend(),
                         decoration: const InputDecoration(
                           hintText: 'Type a message',
-                          hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 15),
+                          hintStyle: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 15,
+                          ),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 8,
+                          ),
                           filled: false,
                         ),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.attach_file_rounded, color: AppColors.textSecondary, size: 22),
+                      icon: const Icon(
+                        Icons.attach_file_rounded,
+                        color: AppColors.textSecondary,
+                        size: 22,
+                      ),
                       onPressed: () {},
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
                     ),
                   ],
                 ),
@@ -133,4 +153,3 @@ class _ChatInputBarState extends State<ChatInputBar> {
     );
   }
 }
-

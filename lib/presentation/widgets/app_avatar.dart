@@ -49,7 +49,8 @@ class AppAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasImage = imageUrl != null &&
+    final bool hasImage =
+        imageUrl != null &&
         imageUrl!.trim().isNotEmpty &&
         !imageUrl!.contains('example.com') &&
         (imageUrl!.startsWith('http://') || imageUrl!.startsWith('https://'));
@@ -149,4 +150,3 @@ class AppAvatar extends StatelessWidget {
     );
   }
 }
-

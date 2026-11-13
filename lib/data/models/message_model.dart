@@ -1,11 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum MessageDeliveryStatus {
-  pending,
-  sent,
-  delivered,
-  read,
-}
+enum MessageDeliveryStatus { pending, sent, delivered, read }
 
 class MessageModel extends Equatable {
   final String id;
@@ -55,22 +50,26 @@ class MessageModel extends Equatable {
       id: json['id'] as String,
       roomId: (json['roomId'] ?? json['room_id']) as String,
       senderId: (json['senderId'] ?? json['sender_id']) as String,
-      senderName: (json['senderName'] ?? json['sender_name']) as String? ?? 'User',
+      senderName:
+          (json['senderName'] ?? json['sender_name']) as String? ?? 'User',
       content: (json['content'] as String?) ?? '',
-      messageType: (json['messageType'] ?? json['message_type']) as String? ?? 'text',
+      messageType:
+          (json['messageType'] ?? json['message_type']) as String? ?? 'text',
       status: parseStatus(json['status'] as String?),
       replyToId: (json['replyToId'] ?? json['reply_to_id']) as String?,
       isDeleted: json['isDeleted'] == true || json['is_deleted'] == 1,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : (json['created_at'] != null
-              ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
-              : DateTime.now()),
+                ? DateTime.tryParse(json['created_at'] as String) ??
+                      DateTime.now()
+                : DateTime.now()),
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now()
           : (json['updated_at'] != null
-              ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
-              : DateTime.now()),
+                ? DateTime.tryParse(json['updated_at'] as String) ??
+                      DateTime.now()
+                : DateTime.now()),
       clientTempId: json['clientTempId'] as String?,
     );
   }
@@ -136,6 +135,14 @@ class MessageModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, roomId, senderId, content, status, isDeleted, createdAt, clientTempId];
+  List<Object?> get props => [
+    id,
+    roomId,
+    senderId,
+    content,
+    status,
+    isDeleted,
+    createdAt,
+    clientTempId,
+  ];
 }
-

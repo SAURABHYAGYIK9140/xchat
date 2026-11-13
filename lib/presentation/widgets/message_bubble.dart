@@ -40,7 +40,9 @@ class MessageBubble extends StatelessWidget {
       );
     }
 
-    final bubbleColor = isMe ? AppColors.outgoingBubble : AppColors.incomingBubble;
+    final bubbleColor = isMe
+        ? AppColors.outgoingBubble
+        : AppColors.incomingBubble;
     final alignment = isMe ? Alignment.centerRight : Alignment.centerLeft;
 
     final borderRadius = BorderRadius.only(

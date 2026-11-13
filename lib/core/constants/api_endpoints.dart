@@ -19,11 +19,15 @@ class ApiEndpoints {
 
   static String get localBase => kIsWeb
       ? localHttpBase
-      : (defaultTargetPlatform == TargetPlatform.android ? androidEmulatorHttpBase : localHttpBase);
+      : (defaultTargetPlatform == TargetPlatform.android
+            ? androidEmulatorHttpBase
+            : localHttpBase);
 
   static String get localWs => kIsWeb
       ? localWsBase
-      : (defaultTargetPlatform == TargetPlatform.android ? androidEmulatorWsBase : localWsBase);
+      : (defaultTargetPlatform == TargetPlatform.android
+            ? androidEmulatorWsBase
+            : localWsBase);
 
   static String get baseUrl => useLiveBackend ? remoteHttpBase : localBase;
   static String get wsUrl => useLiveBackend ? remoteWsBase : localWs;
@@ -34,10 +38,16 @@ class ApiEndpoints {
   static String get directRoom => '$baseUrl/api/xchat/rooms/direct';
   static String get groupRoom => '$baseUrl/api/xchat/rooms/group';
 
-  static String roomDetails(String roomId) => '$baseUrl/api/xchat/rooms/$roomId';
-  static String roomMessages(String roomId) => '$baseUrl/api/xchat/rooms/$roomId/messages';
-  static String sendMessage(String roomId) => '$baseUrl/api/xchat/rooms/$roomId/messages';
-  static String markRoomRead(String roomId) => '$baseUrl/api/xchat/rooms/$roomId/read';
-  static String addMember(String roomId) => '$baseUrl/api/xchat/rooms/$roomId/members';
-  static String removeMember(String roomId, String userId) => '$baseUrl/api/xchat/rooms/$roomId/members/$userId';
+  static String roomDetails(String roomId) =>
+      '$baseUrl/api/xchat/rooms/$roomId';
+  static String roomMessages(String roomId) =>
+      '$baseUrl/api/xchat/rooms/$roomId/messages';
+  static String sendMessage(String roomId) =>
+      '$baseUrl/api/xchat/rooms/$roomId/messages';
+  static String markRoomRead(String roomId) =>
+      '$baseUrl/api/xchat/rooms/$roomId/read';
+  static String addMember(String roomId) =>
+      '$baseUrl/api/xchat/rooms/$roomId/members';
+  static String removeMember(String roomId, String userId) =>
+      '$baseUrl/api/xchat/rooms/$roomId/members/$userId';
 }

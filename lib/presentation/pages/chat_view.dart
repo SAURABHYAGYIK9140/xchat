@@ -36,10 +36,7 @@ class ChatView extends StatelessWidget {
         currentUserId: currentUserId,
         currentUserName: currentUserName,
       ),
-      child: _ChatViewScaffold(
-        currentUserId: currentUserId,
-        onBack: onBack,
-      ),
+      child: _ChatViewScaffold(currentUserId: currentUserId, onBack: onBack),
     );
   }
 }
@@ -48,10 +45,7 @@ class _ChatViewScaffold extends StatefulWidget {
   final String currentUserId;
   final VoidCallback? onBack;
 
-  const _ChatViewScaffold({
-    required this.currentUserId,
-    this.onBack,
-  });
+  const _ChatViewScaffold({required this.currentUserId, this.onBack});
 
   @override
   State<_ChatViewScaffold> createState() => _ChatViewScaffoldState();
@@ -95,14 +89,28 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
 
         if (state is ChatError) {
           return Scaffold(
-            appBar: AppBar(leading: widget.onBack != null ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack) : null),
+            appBar: AppBar(
+              leading: widget.onBack != null
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: widget.onBack,
+                    )
+                  : null,
+            ),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error),
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    size: 48,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(height: 12),
-                  Text(state.message, style: const TextStyle(color: AppColors.error)),
+                  Text(
+                    state.message,
+                    style: const TextStyle(color: AppColors.error),
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => context.read<ChatCubit>().loadChat(),
@@ -122,7 +130,9 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
         final cubit = context.read<ChatCubit>();
 
         final isDirect = !room.isGroup;
-        final otherUser = isDirect ? room.otherMember(widget.currentUserId)?.user : null;
+        final otherUser = isDirect
+            ? room.otherMember(widget.currentUserId)?.user
+            : null;
         final isOtherOnline = otherUser?.isOnline ?? false;
 
         String statusSubtitle;
@@ -152,7 +162,10 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                     icon: const Icon(Icons.arrow_back, size: 23),
                     onPressed: widget.onBack,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
                     style: IconButton.styleFrom(
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       minimumSize: const Size(36, 36),
@@ -165,15 +178,14 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                 GestureDetector(
                   onTap: room.isGroup
                       ? () => Navigator.of(context).push(
-                            SlidePageRoute<void>(
-                              page: GroupInfoScreen(
-                                room: room,
-                                currentUserId: widget.currentUserId,
-                                chatCubit: cubit,
-                              ),
+                          SlidePageRoute<void>(
+                            page: GroupInfoScreen(
+                              room: room,
+                              currentUserId: widget.currentUserId,
+                              chatCubit: cubit,
                             ),
-
-                          )
+                          ),
+                        )
                       : null,
                   child: AppAvatar(
                     imageUrl: room.avatarUrl,
@@ -189,14 +201,14 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
             title: InkWell(
               onTap: room.isGroup
                   ? () => Navigator.of(context).push(
-                        SlidePageRoute<void>(
-                          page: GroupInfoScreen(
-                            room: room,
-                            currentUserId: widget.currentUserId,
-                            chatCubit: cubit,
-                          ),
+                      SlidePageRoute<void>(
+                        page: GroupInfoScreen(
+                          room: room,
+                          currentUserId: widget.currentUserId,
+                          chatCubit: cubit,
                         ),
-                      )
+                      ),
+                    )
                   : null,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +216,11 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                 children: [
                   Text(
                     room.name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -212,8 +228,12 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                     statusSubtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: (state.isTypingActive || isOtherOnline) ? const Color(0xFFD9FDD3) : Colors.white70,
-                      fontWeight: (state.isTypingActive || isOtherOnline) ? FontWeight.w600 : FontWeight.normal,
+                      color: (state.isTypingActive || isOtherOnline)
+                          ? const Color(0xFFD9FDD3)
+                          : Colors.white70,
+                      fontWeight: (state.isTypingActive || isOtherOnline)
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -252,14 +272,20 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                 child: state.messages.isEmpty
                     ? Center(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withAlpha(230),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
                             'No messages here yet. Say hello!',
-                            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ),
                       )
@@ -279,7 +305,9 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                             final prev = state.messages[index - 1];
                             final prevDt = prev.createdAt.toLocal();
                             final currDt = msg.createdAt.toLocal();
-                            if (prevDt.year != currDt.year || prevDt.month != currDt.month || prevDt.day != currDt.day) {
+                            if (prevDt.year != currDt.year ||
+                                prevDt.month != currDt.month ||
+                                prevDt.day != currDt.day) {
                               showDateDivider = true;
                             }
                           }
@@ -289,8 +317,13 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                               if (showDateDivider)
                                 Center(
                                   child: Container(
-                                    margin: const EdgeInsets.symmetric(vertical: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withAlpha(230),
                                       borderRadius: BorderRadius.circular(6),
@@ -303,7 +336,9 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                                       ],
                                     ),
                                     child: Text(
-                                      DateFormatter.formatDateDivider(msg.createdAt),
+                                      DateFormatter.formatDateDivider(
+                                        msg.createdAt,
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,

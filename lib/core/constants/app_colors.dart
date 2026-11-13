@@ -38,4 +38,3 @@ class AppColors {
   static const Color warning = Color(0xFFF59E0B);
   static const Color warningSurface = Color(0xFFFEF3C7);
 }
-

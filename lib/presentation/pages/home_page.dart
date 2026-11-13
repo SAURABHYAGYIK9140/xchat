@@ -130,7 +130,9 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
             width: 380,
             child: Container(
               decoration: const BoxDecoration(
-                border: Border(right: BorderSide(color: AppColors.divider, width: 0.5)),
+                border: Border(
+                  right: BorderSide(color: AppColors.divider, width: 0.5),
+                ),
                 color: Colors.white,
               ),
               child: Column(
@@ -155,34 +157,57 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                             children: [
                               Text(
                                 widget.currentUser.displayName,
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14.5,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 '@${widget.currentUser.username}',
-                                style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textMuted,
+                                ),
                               ),
                             ],
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.group_add_outlined, size: 20, color: AppColors.textSecondary),
+                          icon: const Icon(
+                            Icons.group_add_outlined,
+                            size: 20,
+                            color: AppColors.textSecondary,
+                          ),
                           tooltip: 'New Group',
                           onPressed: _showCreateGroupDialog,
                         ),
                         IconButton(
-                          icon: const Icon(Icons.chat_outlined, size: 20, color: AppColors.textSecondary),
+                          icon: const Icon(
+                            Icons.chat_outlined,
+                            size: 20,
+                            color: AppColors.textSecondary,
+                          ),
                           tooltip: 'New Chat',
                           onPressed: _showNewChatDialog,
                         ),
                         PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert, size: 20, color: AppColors.textSecondary),
+                          icon: const Icon(
+                            Icons.more_vert,
+                            size: 20,
+                            color: AppColors.textSecondary,
+                          ),
                           onSelected: (val) {
-                            if (val == 'logout') context.read<AuthCubit>().logout();
+                            if (val == 'logout') {
+                              context.read<AuthCubit>().logout();
+                            }
                           },
                           itemBuilder: (_) => [
-                            const PopupMenuItem(value: 'logout', child: Text('Logout')),
+                            const PopupMenuItem(
+                              value: 'logout',
+                              child: Text('Logout'),
+                            ),
                           ],
                         ),
                       ],
@@ -194,20 +219,30 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                     stream: _wsClient.statusStream,
                     initialData: _wsClient.currentStatus,
                     builder: (context, snapshot) {
-                      return ConnectionBanner(status: snapshot.data ?? WsConnectionStatus.connected);
+                      return ConnectionBanner(
+                        status: snapshot.data ?? WsConnectionStatus.connected,
+                      );
                     },
                   ),
 
                   // Search Bar
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     color: Colors.white,
                     child: TextField(
                       controller: _searchController,
-                      onChanged: (q) => context.read<RoomsCubit>().setSearchQuery(q),
+                      onChanged: (q) =>
+                          context.read<RoomsCubit>().setSearchQuery(q),
                       decoration: InputDecoration(
                         hintText: 'Search or start new chat',
-                        prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.textMuted),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          size: 18,
+                          color: AppColors.textMuted,
+                        ),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear, size: 16),
@@ -223,9 +258,7 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                   const Divider(height: 1),
 
                   // Conversation List
-                  Expanded(
-                    child: _buildConversationList(isWide: true),
-                  ),
+                  Expanded(child: _buildConversationList(isWide: true)),
                 ],
               ),
             ),
@@ -235,7 +268,9 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
           Expanded(
             child: BlocBuilder<RoomsCubit, RoomsState>(
               builder: (context, state) {
-                final activeRoomId = state is RoomsLoaded ? state.activeRoomId : null;
+                final activeRoomId = state is RoomsLoaded
+                    ? state.activeRoomId
+                    : null;
 
                 if (activeRoomId == null) {
                   return const EmptyChatPlaceholder();
@@ -275,7 +310,13 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
             itemBuilder: (_) => [
               PopupMenuItem(
                 enabled: false,
-                child: Text('Logged in as @${widget.currentUser.username}', style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                child: Text(
+                  'Logged in as @${widget.currentUser.username}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textMuted,
+                  ),
+                ),
               ),
               const PopupMenuDivider(),
               const PopupMenuItem(value: 'logout', child: Text('Logout')),
@@ -290,7 +331,9 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
             stream: _wsClient.statusStream,
             initialData: _wsClient.currentStatus,
             builder: (context, snapshot) {
-              return ConnectionBanner(status: snapshot.data ?? WsConnectionStatus.connected);
+              return ConnectionBanner(
+                status: snapshot.data ?? WsConnectionStatus.connected,
+              );
             },
           ),
 
@@ -302,16 +345,18 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
               onChanged: (q) => context.read<RoomsCubit>().setSearchQuery(q),
               decoration: const InputDecoration(
                 hintText: 'Search conversations...',
-                prefixIcon: Icon(Icons.search, size: 18, color: AppColors.textMuted),
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: 18,
+                  color: AppColors.textMuted,
+                ),
               ),
             ),
           ),
           const Divider(height: 1),
 
           // Conversation List
-          Expanded(
-            child: _buildConversationList(isWide: false),
-          ),
+          Expanded(child: _buildConversationList(isWide: false)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -334,9 +379,16 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.error),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 40,
+                  color: AppColors.error,
+                ),
                 const SizedBox(height: 8),
-                Text(state.message, style: const TextStyle(color: AppColors.error)),
+                Text(
+                  state.message,
+                  style: const TextStyle(color: AppColors.error),
+                ),
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () => context.read<RoomsCubit>().loadRooms(),
@@ -358,7 +410,9 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      _searchController.text.isNotEmpty ? Icons.search_off_rounded : Icons.chat_bubble_outline_rounded,
+                      _searchController.text.isNotEmpty
+                          ? Icons.search_off_rounded
+                          : Icons.chat_bubble_outline_rounded,
                       size: 48,
                       color: AppColors.textMuted,
                     ),
@@ -368,7 +422,11 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                           ? 'No conversations matching "${_searchController.text}"'
                           : 'No conversations yet.\nStart a chat with a contact or create a group!',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                        height: 1.4,
+                      ),
                     ),
                     if (_searchController.text.isEmpty) ...[
                       const SizedBox(height: 16),

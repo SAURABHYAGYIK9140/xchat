@@ -40,7 +40,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   Future<void> _loadUsers() async {
     try {
-      final users = await _authRepository.getUsers(excludeUserId: widget.currentUserId);
+      final users = await _authRepository.getUsers(
+        excludeUserId: widget.currentUserId,
+      );
       if (mounted) {
         setState(() {
           _availableUsers = users;
@@ -73,10 +75,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     try {
       final nav = Navigator.of(context);
       final room = await widget.roomsCubit.createGroup(
-            name: name,
-            description: _descController.text.trim().isNotEmpty ? _descController.text.trim() : null,
-            memberUserIds: _selectedUserIds.toList(),
-          );
+        name: name,
+        description: _descController.text.trim().isNotEmpty
+            ? _descController.text.trim()
+            : null,
+        memberUserIds: _selectedUserIds.toList(),
+      );
       nav.pop();
       if (widget.onGroupCreated != null) {
         widget.onGroupCreated!(room);
@@ -85,7 +89,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create group: $e'), backgroundColor: AppColors.error),
+          SnackBar(
+            content: Text('Failed to create group: $e'),
+            backgroundColor: AppColors.error,
+          ),
         );
       }
     }
@@ -100,7 +107,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedUsers = _availableUsers.where((u) => _selectedUserIds.contains(u.id)).toList();
+    final selectedUsers = _availableUsers
+        .where((u) => _selectedUserIds.contains(u.id))
+        .toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -108,7 +117,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('New Group', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            const Text(
+              'New Group',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
             Text(
               '${_selectedUserIds.length} of ${_availableUsers.length} selected',
               style: const TextStyle(fontSize: 12, color: Colors.white70),
@@ -136,7 +148,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: const Center(
-                          child: Icon(Icons.groups_rounded, size: 32, color: AppColors.primary),
+                          child: Icon(
+                            Icons.groups_rounded,
+                            size: 32,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -147,19 +163,33 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                           children: [
                             TextField(
                               controller: _nameController,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                               decoration: const InputDecoration(
                                 hintText: 'Type group subject here...',
                                 filled: false,
-                                contentPadding: EdgeInsets.symmetric(vertical: 4),
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 4,
+                                ),
                                 border: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                                  borderSide: BorderSide(
+                                    color: AppColors.primary,
+                                    width: 1.5,
+                                  ),
                                 ),
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: AppColors.divider, width: 1),
+                                  borderSide: BorderSide(
+                                    color: AppColors.divider,
+                                    width: 1,
+                                  ),
                                 ),
                                 focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: AppColors.primary, width: 2),
+                                  borderSide: BorderSide(
+                                    color: AppColors.primary,
+                                    width: 2,
+                                  ),
                                 ),
                               ),
                             ),
@@ -170,7 +200,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                               decoration: const InputDecoration(
                                 hintText: 'Group description (optional)',
                                 filled: false,
-                                contentPadding: EdgeInsets.symmetric(vertical: 4),
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 4,
+                                ),
                                 border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
@@ -191,7 +223,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: const BoxDecoration(
                       color: Colors.white,
-                      border: Border(bottom: BorderSide(color: AppColors.divider, width: 0.5)),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColors.divider,
+                          width: 0.5,
+                        ),
+                      ),
                     ),
                     child: ListView.separated(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -215,7 +252,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                   width: 54,
                                   child: Text(
                                     user.displayName.split(' ').first,
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textSecondary,
+                                    ),
                                     textAlign: TextAlign.center,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -238,7 +278,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                     color: Color(0xFF64748B),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(Icons.close, size: 12, color: Colors.white),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -270,7 +314,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 Expanded(
                   child: ListView.separated(
                     itemCount: _availableUsers.length,
-                    separatorBuilder: (_, __) => const Divider(height: 0.5, indent: 72),
+                    separatorBuilder: (_, __) =>
+                        const Divider(height: 0.5, indent: 72),
                     itemBuilder: (context, index) {
                       final user = _availableUsers[index];
                       final isSelected = _selectedUserIds.contains(user.id);
@@ -278,7 +323,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                       return CheckboxListTile(
                         value: isSelected,
                         activeColor: AppColors.primary,
-                        checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        checkboxShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                         onChanged: (checked) {
                           setState(() {
                             if (checked == true) {
@@ -297,11 +344,18 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         ),
                         title: Text(
                           user.displayName,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         subtitle: Text(
                           '@${user.username}',
-                          style: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: AppColors.textMuted,
+                          ),
                         ),
                       );
                     },
@@ -314,10 +368,16 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         backgroundColor: AppColors.primary,
         tooltip: 'Create Group',
         child: _isSubmitting
-            ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
             : const Icon(Icons.check_rounded, color: Colors.white, size: 26),
       ),
     );
   }
 }
-

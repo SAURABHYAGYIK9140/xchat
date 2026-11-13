@@ -23,21 +23,27 @@ class UserModel extends Equatable {
     return UserModel(
       id: json['id'] as String,
       username: json['username'] as String,
-      displayName: (json['displayName'] ?? json['display_name'] ?? json['username']) as String,
-      avatarUrl: (json['avatarUrl'] ??
-          json['avatar_url'] ??
-          'https://api.dicebear.com/7.x/avataaars/svg?seed=${json['username']}') as String,
+      displayName:
+          (json['displayName'] ?? json['display_name'] ?? json['username'])
+              as String,
+      avatarUrl:
+          (json['avatarUrl'] ??
+                  json['avatar_url'] ??
+                  'https://api.dicebear.com/7.x/avataaars/svg?seed=${json['username']}')
+              as String,
       isOnline: json['isOnline'] == true || json['is_online'] == 1,
       lastSeen: json['lastSeen'] != null
           ? DateTime.tryParse(json['lastSeen'] as String) ?? DateTime.now()
           : (json['last_seen'] != null
-              ? DateTime.tryParse(json['last_seen'] as String) ?? DateTime.now()
-              : DateTime.now()),
+                ? DateTime.tryParse(json['last_seen'] as String) ??
+                      DateTime.now()
+                : DateTime.now()),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : (json['created_at'] != null
-              ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
-              : DateTime.now()),
+                ? DateTime.tryParse(json['created_at'] as String) ??
+                      DateTime.now()
+                : DateTime.now()),
     );
   }
 
@@ -74,5 +80,12 @@ class UserModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, username, displayName, avatarUrl, isOnline, lastSeen];
+  List<Object?> get props => [
+    id,
+    username,
+    displayName,
+    avatarUrl,
+    isOnline,
+    lastSeen,
+  ];
 }

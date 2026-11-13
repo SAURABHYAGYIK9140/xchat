@@ -14,7 +14,9 @@ class ChatRepository {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final rawList = data['rooms'] as List<dynamic>;
-      return rawList.map((r) => RoomModel.fromJson(r as Map<String, dynamic>)).toList();
+      return rawList
+          .map((r) => RoomModel.fromJson(r as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception('Failed to load conversations: ${response.body}');
     }
@@ -34,14 +36,14 @@ class ChatRepository {
     }
   }
 
-  Future<RoomModel> getOrCreateDirectRoom(String userAId, String userBId) async {
+  Future<RoomModel> getOrCreateDirectRoom(
+    String userAId,
+    String userBId,
+  ) async {
     final response = await http.post(
       Uri.parse(ApiEndpoints.directRoom),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'userAId': userAId,
-        'userBId': userBId,
-      }),
+      body: jsonEncode({'userAId': userAId, 'userBId': userBId}),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -94,7 +96,10 @@ class ChatRepository {
     }
   }
 
-  Future<RoomModel> removeGroupMember(String roomId, String targetUserId) async {
+  Future<RoomModel> removeGroupMember(
+    String roomId,
+    String targetUserId,
+  ) async {
     final response = await http.delete(
       Uri.parse(ApiEndpoints.removeMember(roomId, targetUserId)),
     );
@@ -107,7 +112,10 @@ class ChatRepository {
     }
   }
 
-  Future<List<MessageModel>> getRoomMessages(String roomId, {int limit = 50}) async {
+  Future<List<MessageModel>> getRoomMessages(
+    String roomId, {
+    int limit = 50,
+  }) async {
     final response = await http.get(
       Uri.parse('${ApiEndpoints.roomMessages(roomId)}?limit=$limit'),
     );
@@ -115,7 +123,9 @@ class ChatRepository {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       final rawList = data['messages'] as List<dynamic>;
-      return rawList.map((m) => MessageModel.fromJson(m as Map<String, dynamic>)).toList();
+      return rawList
+          .map((m) => MessageModel.fromJson(m as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception('Failed to load messages: ${response.body}');
     }
@@ -157,4 +167,3 @@ class ChatRepository {
     );
   }
 }
-

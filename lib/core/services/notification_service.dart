@@ -16,7 +16,8 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
   String? _registeredUserId;
   void Function(String roomId)? onChatOpenedFromNotification;
@@ -52,10 +53,14 @@ class NotificationService {
         provisional: false,
       );
 
-      debugPrint('📱 [Push] Notification permission status: ${settings.authorizationStatus}');
+      debugPrint(
+        '📱 [Push] Notification permission status: ${settings.authorizationStatus}',
+      );
 
       // Configure Flutter Local Notifications for foreground heads-up banners
-      const initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const initializationSettingsAndroid = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
       const initializationSettingsDarwin = DarwinInitializationSettings();
       const initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid,
@@ -75,7 +80,9 @@ class NotificationService {
 
       // Create high-importance Android notification channel
       await _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(_channel);
 
       // Set foreground presentation options
@@ -174,14 +181,13 @@ class NotificationService {
       // ignore: deprecated_member_use
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) {
-        final url = Uri.parse('${ApiEndpoints.baseUrl}/api/xchat/users/push-token');
+        final url = Uri.parse(
+          '${ApiEndpoints.baseUrl}/api/xchat/users/push-token',
+        );
         await http.delete(
           url,
           headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'userId': _registeredUserId,
-            'fcmToken': token,
-          }),
+          body: jsonEncode({'userId': _registeredUserId, 'fcmToken': token}),
         );
       }
       _registeredUserId = null;
@@ -190,7 +196,9 @@ class NotificationService {
 
   Future<void> _sendTokenToServer(String userId, String token) async {
     try {
-      final url = Uri.parse('${ApiEndpoints.baseUrl}/api/xchat/users/push-token');
+      final url = Uri.parse(
+        '${ApiEndpoints.baseUrl}/api/xchat/users/push-token',
+      );
       final platform = defaultTargetPlatform.name;
 
       final res = await http.post(
@@ -204,10 +212,13 @@ class NotificationService {
       );
 
       if (res.statusCode == 200) {
-        debugPrint('✅ [Push] Device token registered with backend for user: $userId');
+        debugPrint(
+          '✅ [Push] Device token registered with backend for user: $userId',
+        );
       }
     } catch (e) {
       debugPrint('⚠️ [Push] Failed to upload push token: $e');
     }
   }
 }
+

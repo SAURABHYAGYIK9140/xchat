@@ -23,11 +23,11 @@ class ChatCubit extends Cubit<ChatState> {
     required String roomId,
     required String currentUserId,
     required String currentUserName,
-  })  : _chatRepository = chatRepository,
-        _roomId = roomId,
-        _currentUserId = currentUserId,
-        _currentUserName = currentUserName,
-        super(ChatInitial()) {
+  }) : _chatRepository = chatRepository,
+       _roomId = roomId,
+       _currentUserId = currentUserId,
+       _currentUserName = currentUserName,
+       super(ChatInitial()) {
     _initListeners();
     loadChat();
   }
@@ -64,14 +64,19 @@ class ChatCubit extends Cubit<ChatState> {
   Future<void> loadChat() async {
     emit(ChatLoading());
     try {
-      final room = await _chatRepository.getRoomDetails(_roomId, _currentUserId);
+      final room = await _chatRepository.getRoomDetails(
+        _roomId,
+        _currentUserId,
+      );
       final messages = await _chatRepository.getRoomMessages(_roomId);
 
-      emit(ChatLoaded(
-        room: room,
-        messages: messages,
-        connectionStatus: _wsClient.currentStatus,
-      ));
+      emit(
+        ChatLoaded(
+          room: room,
+          messages: messages,
+          connectionStatus: _wsClient.currentStatus,
+        ),
+      );
 
       // Mark as read
       _wsClient.send({
@@ -102,7 +107,9 @@ class ChatCubit extends Cubit<ChatState> {
 
     // If this was our own optimistic message, replace it
     if (clientTempId != null) {
-      final idx = currentMessages.indexWhere((m) => m.clientTempId == clientTempId);
+      final idx = currentMessages.indexWhere(
+        (m) => m.clientTempId == clientTempId,
+      );
       if (idx != -1) {
         currentMessages[idx] = incomingMsg;
         emit(s.copyWith(messages: currentMessages));
@@ -145,7 +152,9 @@ class ChatCubit extends Cubit<ChatState> {
     final confirmedMsg = MessageModel.fromJson(rawMsg);
     final currentMessages = List<MessageModel>.from(s.messages);
 
-    final idx = currentMessages.indexWhere((m) => m.clientTempId == clientTempId);
+    final idx = currentMessages.indexWhere(
+      (m) => m.clientTempId == clientTempId,
+    );
     if (idx != -1) {
       currentMessages[idx] = confirmedMsg;
       emit(s.copyWith(messages: currentMessages));
@@ -180,7 +189,8 @@ class ChatCubit extends Cubit<ChatState> {
 
     // All outgoing messages from current user are now marked as read (double blue ticks!)
     final currentMessages = s.messages.map((m) {
-      if (m.senderId == _currentUserId && m.status != MessageDeliveryStatus.read) {
+      if (m.senderId == _currentUserId &&
+          m.status != MessageDeliveryStatus.read) {
         return m.copyWith(status: MessageDeliveryStatus.read);
       }
       return m;
@@ -216,7 +226,9 @@ class ChatCubit extends Cubit<ChatState> {
     final userId = event['userId'] as String?;
     final isOnline = event['isOnline'] == true;
     final lastSeenStr = event['lastSeen'] as String?;
-    final lastSeen = lastSeenStr != null ? DateTime.tryParse(lastSeenStr) : null;
+    final lastSeen = lastSeenStr != null
+        ? DateTime.tryParse(lastSeenStr)
+        : null;
 
     if (userId == null) return;
 
@@ -286,7 +298,8 @@ class ChatCubit extends Cubit<ChatState> {
       clientTempId: clientTempId,
     );
 
-    final updatedMessages = List<MessageModel>.from(s.messages)..add(optimisticMessage);
+    final updatedMessages = List<MessageModel>.from(s.messages)
+      ..add(optimisticMessage);
     emit(s.copyWith(messages: updatedMessages));
 
     // 2. Dispatch via WebSocket if connected
@@ -309,7 +322,11 @@ class ChatCubit extends Cubit<ChatState> {
           clientTempId: clientTempId,
         );
 
-        final msgs = List<MessageModel>.from(state is ChatLoaded ? (state as ChatLoaded).messages : updatedMessages);
+        final msgs = List<MessageModel>.from(
+          state is ChatLoaded
+              ? (state as ChatLoaded).messages
+              : updatedMessages,
+        );
         final idx = msgs.indexWhere((m) => m.clientTempId == clientTempId);
         if (idx != -1) {
           msgs[idx] = serverMsg;
@@ -336,7 +353,10 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<void> addMember(String targetUserId) async {
     try {
-      final updatedRoom = await _chatRepository.addGroupMember(_roomId, targetUserId);
+      final updatedRoom = await _chatRepository.addGroupMember(
+        _roomId,
+        targetUserId,
+      );
       final s = state;
       if (s is ChatLoaded) {
         emit(s.copyWith(room: updatedRoom));
@@ -346,7 +366,10 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<void> removeMember(String targetUserId) async {
     try {
-      final updatedRoom = await _chatRepository.removeGroupMember(_roomId, targetUserId);
+      final updatedRoom = await _chatRepository.removeGroupMember(
+        _roomId,
+        targetUserId,
+      );
       final s = state;
       if (s is ChatLoaded) {
         emit(s.copyWith(room: updatedRoom));
@@ -362,4 +385,3 @@ class ChatCubit extends Cubit<ChatState> {
     return super.close();
   }
 }
-

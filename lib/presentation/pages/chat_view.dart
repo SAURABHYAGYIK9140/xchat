@@ -133,18 +133,39 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
         return Scaffold(
           backgroundColor: AppColors.chatWallpaper,
           appBar: AppBar(
-            leadingWidth: widget.onBack != null ? 70 : 54,
+            leadingWidth: widget.onBack != null ? 92 : 56,
+            titleSpacing: 0,
             leading: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (widget.onBack != null)
+                if (widget.onBack != null) ...[
+                  const SizedBox(width: 4),
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, size: 22),
+                    icon: const Icon(Icons.arrow_back, size: 23),
                     onPressed: widget.onBack,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32),
+                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                    style: IconButton.styleFrom(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      minimumSize: const Size(36, 36),
+                    ),
+                    tooltip: 'Back',
                   ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 6),
+                  const SizedBox(width: 2),
+                ] else
+                  const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: room.isGroup
+                      ? () => Navigator.of(context).push(
+                            SlidePageRoute<void>(
+                              page: GroupInfoScreen(
+                                room: room,
+                                currentUserId: widget.currentUserId,
+                                chatCubit: cubit,
+                              ),
+                            ),
+                          )
+                      : null,
                   child: AppAvatar(
                     imageUrl: room.avatarUrl,
                     name: room.name,

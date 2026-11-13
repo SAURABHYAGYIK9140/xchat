@@ -103,24 +103,25 @@ class MessageBubble extends StatelessWidget {
             const SizedBox(height: 2),
 
             // Time and Delivery Status
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Spacer(),
-                Text(
-                  DateFormatter.formatMessageTime(message.createdAt),
-                  style: const TextStyle(
-                    fontSize: 10.5,
-                    color: AppColors.textMuted,
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormatter.formatMessageTime(message.createdAt),
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      color: AppColors.textMuted,
+                    ),
                   ),
-                ),
-                if (isMe) ...[
-                  const SizedBox(width: 4),
-                  StatusTick(status: message.status),
+                  if (isMe) ...[
+                    const SizedBox(width: 4),
+                    StatusTick(status: message.status),
+                  ],
                 ],
-              ],
+              ),
             ),
           ],
         ),

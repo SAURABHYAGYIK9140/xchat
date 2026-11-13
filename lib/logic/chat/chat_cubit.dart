@@ -53,6 +53,8 @@ class ChatCubit extends Cubit<ChatState> {
         _handleReadReceipt(event);
       } else if (type == 'xchat_typing') {
         _handleTypingEvent(event);
+      } else if (type == 'xchat_presence') {
+        _handlePresenceUpdate(event);
       } else if (type == 'xchat_group_updated') {
         _handleGroupUpdated(event);
       }
@@ -205,6 +207,45 @@ class ChatCubit extends Cubit<ChatState> {
     }
 
     emit(s.copyWith(typingUserNames: currentTypers));
+  }
+
+  void _handlePresenceUpdate(Map<String, dynamic> event) {
+    final s = state;
+    if (s is! ChatLoaded) return;
+
+    final userId = event['userId'] as String?;
+    final isOnline = event['isOnline'] == true;
+    final lastSeenStr = event['lastSeen'] as String?;
+    final lastSeen = lastSeenStr != null ? DateTime.tryParse(lastSeenStr) : null;
+
+    if (userId == null) return;
+
+    final currentMembers = s.room.members;
+    final memberIndex = currentMembers.indexWhere((m) => m.userId == userId);
+
+    if (memberIndex != -1) {
+      final updatedMembers = currentMembers.map((m) {
+        if (m.userId == userId) {
+          final updatedUser = m.user?.copyWith(
+            isOnline: isOnline,
+            lastSeen: lastSeen ?? m.user?.lastSeen,
+          );
+          return RoomMemberModel(
+            id: m.id,
+            roomId: m.roomId,
+            userId: m.userId,
+            role: m.role,
+            lastReadAt: m.lastReadAt,
+            joinedAt: m.joinedAt,
+            user: updatedUser,
+          );
+        }
+        return m;
+      }).toList();
+
+      final updatedRoom = s.room.copyWith(members: updatedMembers);
+      emit(s.copyWith(room: updatedRoom));
+    }
   }
 
   void _handleGroupUpdated(Map<String, dynamic> event) {

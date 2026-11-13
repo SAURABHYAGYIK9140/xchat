@@ -29,6 +29,10 @@ class RoomsCubit extends Cubit<RoomsState> {
         _handleNewMessage(event);
       } else if (type == 'xchat_read_receipt') {
         _handleReadReceipt(event);
+      } else if (type == 'xchat_presence') {
+        _handlePresenceUpdate(event);
+      } else if (type == 'xchat_auth_success') {
+        _handleAuthSuccess(event);
       } else if (type == 'xchat_room_created' || type == 'xchat_group_updated') {
         loadRooms();
       }
@@ -93,6 +97,97 @@ class RoomsCubit extends Cubit<RoomsState> {
 
       emit(s.copyWith(rooms: updatedRooms));
     }
+  }
+
+  void _handlePresenceUpdate(Map<String, dynamic> event) {
+    final s = state;
+    if (s is! RoomsLoaded) return;
+
+    final userId = event['userId'] as String?;
+    final isOnline = event['isOnline'] == true;
+    final lastSeenStr = event['lastSeen'] as String?;
+    final lastSeen = lastSeenStr != null ? DateTime.tryParse(lastSeenStr) : null;
+
+    if (userId == null) return;
+
+    final updatedRooms = s.rooms.map((room) {
+      if (room.isGroup) return room;
+
+      final updatedMembers = room.members.map((member) {
+        if (member.userId == userId) {
+          final updatedUser = member.user?.copyWith(
+            isOnline: isOnline,
+            lastSeen: lastSeen ?? member.user?.lastSeen,
+          );
+          return RoomMemberModel(
+            id: member.id,
+            roomId: member.roomId,
+            userId: member.userId,
+            role: member.role,
+            lastReadAt: member.lastReadAt,
+            joinedAt: member.joinedAt,
+            user: updatedUser,
+          );
+        }
+        return member;
+      }).toList();
+
+      return room.copyWith(members: updatedMembers);
+    }).toList();
+
+    emit(s.copyWith(rooms: updatedRooms));
+  }
+
+  void _handleAuthSuccess(Map<String, dynamic> event) {
+    final s = state;
+    if (s is! RoomsLoaded) return;
+
+    final onlineUsersRaw = event['onlineUsers'] as List<dynamic>?;
+    if (onlineUsersRaw == null) return;
+
+    final onlineUserIds = <String>{};
+    final lastSeenMap = <String, DateTime>{};
+
+    for (final u in onlineUsersRaw) {
+      if (u is Map<String, dynamic>) {
+        final id = u['userId'] as String?;
+        if (id != null) {
+          onlineUserIds.add(id);
+          final ls = u['lastSeen'] as String?;
+          if (ls != null) {
+            final dt = DateTime.tryParse(ls);
+            if (dt != null) lastSeenMap[id] = dt;
+          }
+        }
+      }
+    }
+
+    final updatedRooms = s.rooms.map((room) {
+      if (room.isGroup) return room;
+
+      final updatedMembers = room.members.map((member) {
+        if (onlineUserIds.contains(member.userId)) {
+          final updatedUser = member.user?.copyWith(
+            isOnline: true,
+            lastSeen: lastSeenMap[member.userId] ?? member.user?.lastSeen,
+          );
+          return RoomMemberModel(
+            id: member.id,
+            roomId: member.roomId,
+            userId: member.userId,
+            role: member.role,
+            lastReadAt: member.lastReadAt,
+            joinedAt: member.joinedAt,
+            user: updatedUser,
+          );
+        }
+        return member;
+      }).toList();
+
+      return room.copyWith(members: updatedMembers);
+    }).toList();
+
+    emit(s.copyWith(rooms: updatedRooms));
   }
 
   Future<void> loadRooms() async {

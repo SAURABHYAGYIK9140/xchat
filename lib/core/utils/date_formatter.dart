@@ -45,5 +45,24 @@ class DateFormatter {
 
     return DateFormat('MMMM d, yyyy').format(local);
   }
+
+  static String formatLastSeen(DateTime? dateTime) {
+    if (dateTime == null) return 'Offline';
+    final now = DateTime.now();
+    final local = dateTime.toLocal();
+    final difference = now.difference(local);
+
+    if (difference.inMinutes < 1) {
+      return 'Last seen just now';
+    } else if (difference.inMinutes < 60) {
+      return 'Last seen ${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24 && now.day == local.day) {
+      return 'Last seen today at ${DateFormat('h:mm a').format(local)}';
+    } else if (difference.inDays < 2) {
+      return 'Last seen yesterday at ${DateFormat('h:mm a').format(local)}';
+    } else {
+      return 'Last seen ${DateFormat('d/M/yy').format(local)}';
+    }
+  }
 }
 

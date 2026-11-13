@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/network/websocket_client.dart';
 import '../../core/utils/page_transitions.dart';
 import '../../data/models/room_model.dart';
 import '../../data/models/user_model.dart';
@@ -27,6 +29,7 @@ class NewChatScreen extends StatefulWidget {
 class _NewChatScreenState extends State<NewChatScreen> {
   final AuthRepository _authRepository = AuthRepository();
   final TextEditingController _searchController = TextEditingController();
+  StreamSubscription<Map<String, dynamic>>? _wsSub;
   List<UserModel> _allUsers = [];
   List<UserModel> _filteredUsers = [];
   bool _isLoading = true;
@@ -38,6 +41,22 @@ class _NewChatScreenState extends State<NewChatScreen> {
     super.initState();
     _loadUsers();
     _searchController.addListener(_onSearchChanged);
+    _wsSub = WebSocketClient().eventStream.listen((event) {
+      if (event['type'] == 'xchat_presence' && mounted) {
+        final userId = event['userId'] as String?;
+        final isOnline = event['isOnline'] == true;
+        if (userId != null) {
+          setState(() {
+            _allUsers = _allUsers.map((u) {
+              return u.id == userId ? u.copyWith(isOnline: isOnline) : u;
+            }).toList();
+            _filteredUsers = _filteredUsers.map((u) {
+              return u.id == userId ? u.copyWith(isOnline: isOnline) : u;
+            }).toList();
+          });
+        }
+      }
+    });
   }
 
   void _onSearchChanged() {
@@ -75,6 +94,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
 
   @override
   void dispose() {
+    _wsSub?.cancel();
     _searchController.dispose();
     super.dispose();
   }

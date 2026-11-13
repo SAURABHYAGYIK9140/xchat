@@ -24,6 +24,8 @@ class ConversationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasUnread = room.unreadCount > 0;
     final isLastMessageMine = room.lastMessageSenderId == currentUserId;
+    final isDirect = !room.isGroup;
+    final isOnline = isDirect && room.isOtherUserOnline(currentUserId);
 
     return Material(
       color: isSelected ? AppColors.secondarySurface : Colors.transparent,
@@ -33,13 +35,14 @@ class ConversationTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             children: [
-              // Avatar
+              // Avatar with online status
               AppAvatar(
                 imageUrl: room.avatarUrl,
                 name: room.name,
                 isGroup: room.isGroup,
                 radius: 25,
-                showOnlineIndicator: room.isGroup,
+                isOnline: isOnline,
+                showOnlineIndicator: isDirect,
               ),
               const SizedBox(width: 14),
 

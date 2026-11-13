@@ -121,13 +121,21 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
         final room = state.room;
         final cubit = context.read<ChatCubit>();
 
+        final isDirect = !room.isGroup;
+        final otherUser = isDirect ? room.otherMember(widget.currentUserId)?.user : null;
+        final isOtherOnline = otherUser?.isOnline ?? false;
+
         String statusSubtitle;
         if (state.isTypingActive) {
           statusSubtitle = '${state.typingUserNames.join(', ')} is typing...';
         } else if (room.isGroup) {
           statusSubtitle = '${room.members.length} participants';
-        } else {
+        } else if (isOtherOnline) {
           statusSubtitle = 'Online';
+        } else if (otherUser != null) {
+          statusSubtitle = DateFormatter.formatLastSeen(otherUser.lastSeen);
+        } else {
+          statusSubtitle = 'Offline';
         }
 
         return Scaffold(
@@ -164,6 +172,7 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                                 chatCubit: cubit,
                               ),
                             ),
+
                           )
                       : null,
                   child: AppAvatar(
@@ -171,6 +180,8 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                     name: room.name,
                     isGroup: room.isGroup,
                     radius: 19,
+                    isOnline: isOtherOnline,
+                    showOnlineIndicator: isDirect,
                   ),
                 ),
               ],
@@ -201,8 +212,8 @@ class _ChatViewScaffoldState extends State<_ChatViewScaffold> {
                     statusSubtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: state.isTypingActive ? const Color(0xFFD9FDD3) : Colors.white70,
-                      fontWeight: state.isTypingActive ? FontWeight.w600 : FontWeight.normal,
+                      color: (state.isTypingActive || isOtherOnline) ? const Color(0xFFD9FDD3) : Colors.white70,
+                      fontWeight: (state.isTypingActive || isOtherOnline) ? FontWeight.w600 : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

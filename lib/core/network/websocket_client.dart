@@ -24,6 +24,7 @@ class WebSocketClient {
   int _reconnectAttempts = 0;
   Timer? _reconnectTimer;
   Timer? _pingTimer;
+  int _activeCandidateIndex = 0;
 
   final _eventController = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get eventStream => _eventController.stream;
@@ -34,15 +35,25 @@ class WebSocketClient {
   WsConnectionStatus _currentStatus = WsConnectionStatus.disconnected;
   WsConnectionStatus get currentStatus => _currentStatus;
 
+  List<String> get _candidateWsUrls {
+    final primary = ApiEndpoints.wsUrl;
+    final fallback = ApiEndpoints.useLiveBackend ? ApiEndpoints.localWs : ApiEndpoints.remoteWsBase;
+    return [primary, fallback];
+  }
+
   void connect({required String userId}) {
     _currentUserId = userId;
     _intentionalClose = false;
+    _activeCandidateIndex = 0;
+    _cleanUpConnection();
     _connectInternal();
   }
 
   void _updateStatus(WsConnectionStatus status) {
-    _currentStatus = status;
-    _statusController.add(status);
+    if (_currentStatus != status) {
+      _currentStatus = status;
+      _statusController.add(status);
+    }
   }
 
   void _connectInternal() {
@@ -50,8 +61,12 @@ class WebSocketClient {
 
     _updateStatus(_reconnectAttempts > 0 ? WsConnectionStatus.reconnecting : WsConnectionStatus.connecting);
 
+    final candidates = _candidateWsUrls;
+    final selectedUrl = candidates[_activeCandidateIndex % candidates.length];
+    debugPrint('🔌 [WS] Connecting to $selectedUrl (attempt $_reconnectAttempts)...');
+
     try {
-      final uri = Uri.parse(ApiEndpoints.wsUrl);
+      final uri = Uri.parse(selectedUrl);
       _channel = WebSocketChannel.connect(uri);
 
       _subscription = _channel!.stream.listen(
@@ -59,34 +74,19 @@ class WebSocketClient {
           _handleIncoming(data);
         },
         onDone: () {
-          debugPrint('🔌 WebSocket disconnected');
+          debugPrint('🔌 [WS] Stream closed from server');
           _cleanUpConnection();
           _scheduleReconnect();
         },
         onError: (Object error) {
-          debugPrint('❌ WebSocket error: $error');
+          debugPrint('❌ [WS] Stream error: $error');
           _cleanUpConnection();
           _scheduleReconnect();
         },
         cancelOnError: true,
       );
-
-      // Successfully opened
-      _reconnectAttempts = 0;
-      _updateStatus(WsConnectionStatus.connected);
-
-      // Authenticate socket session with current user
-      if (_currentUserId != null) {
-        send({
-          'type': 'xchat_auth',
-          'userId': _currentUserId,
-        });
-      }
-
-      // Start ping heartbeat
-      _startPingHeartbeat();
     } catch (e) {
-      debugPrint('❌ WebSocket connection failed: $e');
+      debugPrint('❌ [WS] Connection initiation failed: $e');
       _cleanUpConnection();
       _scheduleReconnect();
     }
@@ -98,13 +98,21 @@ class WebSocketClient {
       final type = json['type'] as String?;
 
       if (type == 'connection_established') {
+        debugPrint('🟢 [WS] Connection established successfully');
+        _reconnectAttempts = 0;
         _updateStatus(WsConnectionStatus.connected);
+        _startPingHeartbeat();
+
+        // Authenticate user presence immediately upon socket handshake
         if (_currentUserId != null) {
           send({
             'type': 'xchat_auth',
             'userId': _currentUserId,
           });
         }
+      } else if (type == 'xchat_auth_success') {
+        debugPrint('👤 [WS] Authenticated as $_currentUserId');
+        _eventController.add(json);
       } else if (type != 'pong') {
         _eventController.add(json);
       }
@@ -128,9 +136,14 @@ class WebSocketClient {
 
     _reconnectTimer?.cancel();
     _reconnectAttempts++;
-    final delaySeconds = (_reconnectAttempts * 2).clamp(2, 20);
 
-    debugPrint('⏳ Scheduling WebSocket reconnect in ${delaySeconds}s (attempt $_reconnectAttempts)...');
+    // Alternate to fallback URL if primary fails after 2 attempts
+    if (_reconnectAttempts % 2 == 0) {
+      _activeCandidateIndex++;
+    }
+
+    final delaySeconds = (_reconnectAttempts * 2).clamp(2, 10);
+    debugPrint('⏳ [WS] Reconnecting in ${delaySeconds}s (attempt $_reconnectAttempts)...');
     _reconnectTimer = Timer(Duration(seconds: delaySeconds), () {
       _connectInternal();
     });
@@ -140,6 +153,7 @@ class WebSocketClient {
     _pingTimer?.cancel();
     _subscription?.cancel();
     _subscription = null;
+    _channel?.sink.close();
     _channel = null;
     _updateStatus(WsConnectionStatus.disconnected);
   }
@@ -158,7 +172,6 @@ class WebSocketClient {
     _intentionalClose = true;
     _reconnectTimer?.cancel();
     _pingTimer?.cancel();
-    _channel?.sink.close();
     _cleanUpConnection();
   }
 }

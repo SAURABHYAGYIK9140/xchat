@@ -138,6 +138,22 @@ class RoomModel extends Equatable {
     );
   }
 
+  RoomMemberModel? otherMember(String currentUserId) {
+    if (isGroup) return null;
+    final others = members.where((m) => m.userId != currentUserId);
+    return others.isNotEmpty ? others.first : null;
+  }
+
+  bool isOtherUserOnline(String currentUserId) {
+    final other = otherMember(currentUserId);
+    return other?.user?.isOnline ?? false;
+  }
+
+  DateTime? otherUserLastSeen(String currentUserId) {
+    final other = otherMember(currentUserId);
+    return other?.user?.lastSeen;
+  }
+
   @override
   List<Object?> get props => [
         id,

@@ -1,36 +1,7 @@
-import 'package:flutter/foundation.dart';
-
 class ApiEndpoints {
-  // Remote production backend running live on Render
-  static const String remoteHttpBase = 'https://backend-7bx7.onrender.com';
-  static const String remoteWsBase = 'wss://backend-7bx7.onrender.com/ws';
-
-  // Local backend
-  static const String localHttpBase = 'http://localhost:8000';
-  static const String localWsBase = 'ws://localhost:8000/ws';
-
-  // Android emulator local alias
-  static const String androidEmulatorHttpBase = 'http://10.0.2.2:8000';
-  static const String androidEmulatorWsBase = 'ws://10.0.2.2:8000/ws';
-
-  // Current active mode (true = cloud Render, false = local server)
-  // Default to live cloud backend so physical phones, emulators, web, and evaluation reviewers all share the exact same network and database!
-  static bool useLiveBackend = true;
-
-  static String get localBase => kIsWeb
-      ? localHttpBase
-      : (defaultTargetPlatform == TargetPlatform.android
-            ? androidEmulatorHttpBase
-            : localHttpBase);
-
-  static String get localWs => kIsWeb
-      ? localWsBase
-      : (defaultTargetPlatform == TargetPlatform.android
-            ? androidEmulatorWsBase
-            : localWsBase);
-
-  static String get baseUrl => useLiveBackend ? remoteHttpBase : localBase;
-  static String get wsUrl => useLiveBackend ? remoteWsBase : localWs;
+  // Live production backend (Render)
+  static const String baseUrl = 'https://backend-7bx7.onrender.com';
+  static const String wsUrl = 'wss://backend-7bx7.onrender.com/ws';
 
   static String get login => '$baseUrl/api/xchat/auth/login';
   static String get users => '$baseUrl/api/xchat/users';

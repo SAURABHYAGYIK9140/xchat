@@ -13,78 +13,53 @@ class AuthRepository {
     String? displayName,
     String? avatarUrl,
   }) async {
-    final candidateHosts = [
-      ApiEndpoints.baseUrl,
-      ApiEndpoints.useLiveBackend
-          ? ApiEndpoints.localBase
-          : ApiEndpoints.remoteHttpBase,
-    ];
+    try {
+      final response = await http
+          .post(
+            Uri.parse(ApiEndpoints.login),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'username': username,
+              'displayName': displayName,
+              'avatarUrl': avatarUrl,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
 
-    String lastError = '';
-
-    for (final host in candidateHosts) {
-      try {
-        final url = '$host/api/xchat/auth/login';
-        final response = await http
-            .post(
-              Uri.parse(url),
-              headers: {'Content-Type': 'application/json'},
-              body: jsonEncode({
-                'username': username,
-                'displayName': displayName,
-                'avatarUrl': avatarUrl,
-              }),
-            )
-            .timeout(const Duration(seconds: 4));
-
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body) as Map<String, dynamic>;
-          final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
-          await saveSession(user);
-
-          // Lock in the responsive working server
-          ApiEndpoints.useLiveBackend = (host == ApiEndpoints.remoteHttpBase);
-          return user;
-        } else {
-          lastError =
-              'Server returned ${response.statusCode}: ${response.body}';
-        }
-      } catch (e) {
-        lastError = e.toString();
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+        await saveSession(user);
+        return user;
+      } else {
+        throw Exception(
+          'Server returned ${response.statusCode}: ${response.body}',
+        );
       }
+    } catch (e) {
+      throw Exception('Login failed: $e');
     }
-
-    throw Exception('Login failed: $lastError');
   }
 
   Future<List<UserModel>> getUsers({String? excludeUserId}) async {
-    final candidateHosts = [
-      ApiEndpoints.baseUrl,
-      ApiEndpoints.useLiveBackend
-          ? ApiEndpoints.localBase
-          : ApiEndpoints.remoteHttpBase,
-    ];
+    try {
+      final url = excludeUserId != null
+          ? '${ApiEndpoints.users}?excludeUserId=$excludeUserId'
+          : ApiEndpoints.users;
 
-    for (final host in candidateHosts) {
-      try {
-        final url = excludeUserId != null
-            ? '$host/api/xchat/users?excludeUserId=$excludeUserId'
-            : '$host/api/xchat/users';
-
-        final response = await http
-            .get(Uri.parse(url))
-            .timeout(const Duration(milliseconds: 2500));
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body) as Map<String, dynamic>;
-          final rawList = data['users'] as List<dynamic>;
-          final users = rawList
-              .map((u) => UserModel.fromJson(u as Map<String, dynamic>))
-              .toList();
-          cachedUsers = users;
-          return users;
-        }
-      } catch (_) {}
-    }
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(const Duration(milliseconds: 5000));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final rawList = data['users'] as List<dynamic>;
+        final users = rawList
+            .map((u) => UserModel.fromJson(u as Map<String, dynamic>))
+            .toList();
+        cachedUsers = users;
+        return users;
+      }
+    } catch (_) {}
 
     if (cachedUsers.isNotEmpty) {
       if (excludeUserId != null) {
@@ -93,7 +68,7 @@ class AuthRepository {
       return cachedUsers;
     }
 
-    throw Exception('Failed to load users from available servers');
+    throw Exception('Failed to load users');
   }
 
   Future<void> saveSession(UserModel user) async {

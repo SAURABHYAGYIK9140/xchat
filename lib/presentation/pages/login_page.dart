@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../core/constants/api_endpoints.dart';
 import '../../core/constants/app_colors.dart';
 import '../../logic/auth/auth_cubit.dart';
 import '../../logic/auth/auth_state.dart';
@@ -113,64 +112,6 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Server Environment Selector Pill
-                        Center(
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              setState(() {
-                                ApiEndpoints.useLiveBackend =
-                                    !ApiEndpoints.useLiveBackend;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondarySurface,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: AppColors.divider,
-                                  width: 0.5,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.accentGreen,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    ApiEndpoints.useLiveBackend
-                                        ? 'Server: Cloud (Render)'
-                                        : 'Server: Local (Port 8000)',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Icon(
-                                    Icons.sync_alt_rounded,
-                                    size: 12,
-                                    color: AppColors.textMuted,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
                         // App Brand Header
                         Center(
                           child: Container(

@@ -325,36 +325,29 @@ class NotificationService {
   }
 
   Future<void> _sendTokenToServer(String userId, String token) async {
-    final candidateHosts = [
-      ApiEndpoints.baseUrl,
-      ApiEndpoints.useLiveBackend
-          ? ApiEndpoints.localBase
-          : ApiEndpoints.remoteHttpBase,
-    ];
-
     final platform = defaultTargetPlatform.name;
 
-    for (final host in candidateHosts) {
-      try {
-        final url = Uri.parse('$host/api/xchat/users/push-token');
-        final res = await http
-            .post(
-              url,
-              headers: {'Content-Type': 'application/json'},
-              body: jsonEncode({
-                'userId': userId,
-                'fcmToken': token,
-                'platform': platform,
-              }),
-            )
-            .timeout(const Duration(seconds: 4));
+    try {
+      final url = Uri.parse(
+        '${ApiEndpoints.baseUrl}/api/xchat/users/push-token',
+      );
+      final res = await http
+          .post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'userId': userId,
+              'fcmToken': token,
+              'platform': platform,
+            }),
+          )
+          .timeout(const Duration(seconds: 4));
 
-        if (res.statusCode == 200) {
-          debugPrint('✅ [Push] Device token registered with backend ($host)');
-        }
-      } catch (e) {
-        debugPrint('⚠️ [Push] Failed to upload push token to $host: $e');
+      if (res.statusCode == 200) {
+        debugPrint('✅ [Push] Device token registered with backend');
       }
+    } catch (e) {
+      debugPrint('⚠️ [Push] Failed to upload push token: $e');
     }
   }
 }

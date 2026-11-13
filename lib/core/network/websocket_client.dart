@@ -31,11 +31,7 @@ class WebSocketClient {
   WsConnectionStatus get currentStatus => _currentStatus;
 
   List<String> get _candidateWsUrls {
-    final primary = ApiEndpoints.wsUrl;
-    final fallback = ApiEndpoints.useLiveBackend
-        ? ApiEndpoints.localWs
-        : ApiEndpoints.remoteWsBase;
-    return [primary, fallback];
+    return [ApiEndpoints.wsUrl];
   }
 
   void connect({required String userId}) {

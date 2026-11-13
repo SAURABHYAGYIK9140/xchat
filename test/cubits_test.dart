@@ -10,6 +10,7 @@ import 'package:xchat/logic/rooms/rooms_cubit.dart';
 import 'package:xchat/logic/rooms/rooms_state.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
 class MockChatRepository extends Mock implements ChatRepository {}
 
 void main() {
@@ -41,11 +42,13 @@ void main() {
         createdAt: DateTime.now(),
       );
 
-      when(() => mockAuthRepository.loginOrRegister(
-        username: 'alice',
-        displayName: 'Alice Test',
-        avatarUrl: null,
-      )).thenAnswer((_) async => user);
+      when(
+        () => mockAuthRepository.loginOrRegister(
+          username: 'alice',
+          displayName: 'Alice Test',
+          avatarUrl: null,
+        ),
+      ).thenAnswer((_) async => user);
 
       final cubit = AuthCubit(authRepository: mockAuthRepository);
 
@@ -53,7 +56,11 @@ void main() {
         cubit.stream,
         emitsInOrder([
           isA<AuthLoading>(),
-          isA<Authenticated>().having((s) => s.user.username, 'username', 'alice'),
+          isA<Authenticated>().having(
+            (s) => s.user.username,
+            'username',
+            'alice',
+          ),
         ]),
       );
 
@@ -67,10 +74,7 @@ void main() {
 
       final cubit = AuthCubit(authRepository: mockAuthRepository);
 
-      expectLater(
-        cubit.stream,
-        emits(isA<Unauthenticated>()),
-      );
+      expectLater(cubit.stream, emits(isA<Unauthenticated>()));
 
       await cubit.logout();
       cubit.close();
@@ -98,31 +102,38 @@ void main() {
       ),
     ];
 
-    test('loadRooms emits [RoomsLoading, RoomsLoaded] with fetched rooms', () async {
-      when(() => mockChatRepository.getUserRooms('usr_me')).thenAnswer((_) async => sampleRooms);
+    test(
+      'loadRooms emits [RoomsLoading, RoomsLoaded] with fetched rooms',
+      () async {
+        when(
+          () => mockChatRepository.getUserRooms('usr_me'),
+        ).thenAnswer((_) async => sampleRooms);
 
-      final cubit = RoomsCubit(
-        chatRepository: mockChatRepository,
-        currentUserId: 'usr_me',
-      );
+        final cubit = RoomsCubit(
+          chatRepository: mockChatRepository,
+          currentUserId: 'usr_me',
+        );
 
-      expectLater(
-        cubit.stream,
-        emitsInOrder([
-          isA<RoomsLoading>(),
-          isA<RoomsLoaded>().having((s) => s.rooms.length, 'rooms count', 2),
-        ]),
-      );
+        expectLater(
+          cubit.stream,
+          emitsInOrder([
+            isA<RoomsLoading>(),
+            isA<RoomsLoaded>().having((s) => s.rooms.length, 'rooms count', 2),
+          ]),
+        );
 
-      await cubit.loadRooms();
-      cubit.close();
-    });
+        await cubit.loadRooms();
+        cubit.close();
+      },
+    );
 
     test('selectRoom updates activeRoomId and clears unread count', () async {
-      when(() => mockChatRepository.getUserRooms('usr_me')).thenAnswer((_) async => [
-        sampleRooms[0].copyWith(unreadCount: 5),
-      ]);
-      when(() => mockChatRepository.markRoomAsRead('room_1', 'usr_me')).thenAnswer((_) async {});
+      when(
+        () => mockChatRepository.getUserRooms('usr_me'),
+      ).thenAnswer((_) async => [sampleRooms[0].copyWith(unreadCount: 5)]);
+      when(
+        () => mockChatRepository.markRoomAsRead('room_1', 'usr_me'),
+      ).thenAnswer((_) async {});
 
       final cubit = RoomsCubit(
         chatRepository: mockChatRepository,

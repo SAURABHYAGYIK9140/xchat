@@ -80,19 +80,21 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
         nav.pop();
       }
       context.read<RoomsCubit>().selectRoom(roomId);
-      nav.push(
-        MaterialPageRoute<void>(
-          builder: (_) => ChatDetailPage(
-            roomId: roomId,
-            currentUserId: widget.currentUser.id,
-            currentUserName: widget.currentUser.displayName,
-          ),
-        ),
-      ).then((_) {
-        if (mounted) {
-          context.read<RoomsCubit>().selectRoom(null);
-        }
-      });
+      nav
+          .push(
+            MaterialPageRoute<void>(
+              builder: (_) => ChatDetailPage(
+                roomId: roomId,
+                currentUserId: widget.currentUser.id,
+                currentUserName: widget.currentUser.displayName,
+              ),
+            ),
+          )
+          .then((_) {
+            if (mounted) {
+              context.read<RoomsCubit>().selectRoom(null);
+            }
+          });
     }
   }
 
@@ -116,19 +118,21 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
           roomsCubit: roomsCubit,
           onRoomSelected: (room) {
             if (!isWide) {
-              Navigator.of(context).push(
-                SlidePageRoute<void>(
-                  page: ChatDetailPage(
-                    roomId: room.id,
-                    currentUserId: widget.currentUser.id,
-                    currentUserName: widget.currentUser.displayName,
-                  ),
-                ),
-              ).then((_) {
-                if (mounted) {
-                  context.read<RoomsCubit>().selectRoom(null);
-                }
-              });
+              Navigator.of(context)
+                  .push(
+                    SlidePageRoute<void>(
+                      page: ChatDetailPage(
+                        roomId: room.id,
+                        currentUserId: widget.currentUser.id,
+                        currentUserName: widget.currentUser.displayName,
+                      ),
+                    ),
+                  )
+                  .then((_) {
+                    if (mounted) {
+                      context.read<RoomsCubit>().selectRoom(null);
+                    }
+                  });
             }
           },
         ),
@@ -147,19 +151,21 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
           roomsCubit: roomsCubit,
           onGroupCreated: (room) {
             if (!isWide) {
-              Navigator.of(context).push(
-                SlidePageRoute<void>(
-                  page: ChatDetailPage(
-                    roomId: room.id,
-                    currentUserId: widget.currentUser.id,
-                    currentUserName: widget.currentUser.displayName,
-                  ),
-                ),
-              ).then((_) {
-                if (mounted) {
-                  context.read<RoomsCubit>().selectRoom(null);
-                }
-              });
+              Navigator.of(context)
+                  .push(
+                    SlidePageRoute<void>(
+                      page: ChatDetailPage(
+                        roomId: room.id,
+                        currentUserId: widget.currentUser.id,
+                        currentUserName: widget.currentUser.displayName,
+                      ),
+                    ),
+                  )
+                  .then((_) {
+                    if (mounted) {
+                      context.read<RoomsCubit>().selectRoom(null);
+                    }
+                  });
             }
           },
         ),
@@ -522,19 +528,21 @@ class _HomePageScaffoldState extends State<_HomePageScaffold> {
                     roomsCubit.selectRoom(room.id);
                   } else {
                     roomsCubit.selectRoom(room.id);
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => ChatDetailPage(
-                          roomId: room.id,
-                          currentUserId: widget.currentUser.id,
-                          currentUserName: widget.currentUser.displayName,
-                        ),
-                      ),
-                    ).then((_) {
-                      if (mounted) {
-                        roomsCubit.selectRoom(null);
-                      }
-                    });
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => ChatDetailPage(
+                              roomId: room.id,
+                              currentUserId: widget.currentUser.id,
+                              currentUserName: widget.currentUser.displayName,
+                            ),
+                          ),
+                        )
+                        .then((_) {
+                          if (mounted) {
+                            roomsCubit.selectRoom(null);
+                          }
+                        });
                   }
                 },
               );

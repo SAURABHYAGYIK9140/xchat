@@ -59,7 +59,9 @@ class NotificationService {
     if (onChatOpenedFromNotification != null) {
       onChatOpenedFromNotification!(roomId);
     } else {
-      debugPrint('⏳ [Notification] Queueing pending navigation to room: $roomId');
+      debugPrint(
+        '⏳ [Notification] Queueing pending navigation to room: $roomId',
+      );
       pendingNavigationRoomId = roomId;
     }
   }
@@ -68,7 +70,9 @@ class NotificationService {
     final pending = pendingNavigationRoomId;
     if (pending != null && onChatOpenedFromNotification != null) {
       pendingNavigationRoomId = null;
-      debugPrint('🚀 [Notification] Processing pending navigation to room: $pending');
+      debugPrint(
+        '🚀 [Notification] Processing pending navigation to room: $pending',
+      );
       onChatOpenedFromNotification!(pending);
     }
   }
@@ -185,8 +189,8 @@ class NotificationService {
       }
 
       // Check if launched from local notification tap when terminated
-      final launchDetails =
-          await _localNotifications.getNotificationAppLaunchDetails();
+      final launchDetails = await _localNotifications
+          .getNotificationAppLaunchDetails();
       if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
         final payload = launchDetails.notificationResponse?.payload;
         if (payload != null && payload.isNotEmpty) {
